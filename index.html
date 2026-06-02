@@ -123,14 +123,10 @@
   .stats {
     color: var(--muted);
     font-size: 0.85rem;
-    text-align: center;
-    padding: 12px 32px 0;
   }
 
   main {
-    padding: 24px 32px 48px;
-    max-width: 1600px;
-    margin: 0 auto;
+    padding: 16px 24px 48px;
   }
 
   .grid {
@@ -344,11 +340,187 @@
 
   .open-tab-btn:hover { background: #6a3de8; }
 
+  /* ── Page layout ── */
+  .page-layout {
+    display: grid;
+    grid-template-columns: 180px 1fr 180px;
+    max-width: 1800px;
+    margin: 0 auto;
+    align-items: start;
+  }
+
+  .page-center { min-width: 0; }
+
+  /* ── Ad sidebars ── */
+  .ad-sidebar {
+    padding: 20px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: sticky;
+    top: 130px;
+  }
+
+  .ad-slot {
+    background: #0e0e20;
+    border: 1.5px dashed #33335a;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: #44446a;
+  }
+
+  .ad-slot-rect { width: 160px; height: 160px; }
+  .ad-slot-sky  { width: 160px; height: 420px; }
+  .ad-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; }
+  .ad-icon  { font-size: 1.4rem; opacity: 0.3; }
+
+  .ad-banner-mobile {
+    display: none;
+    background: #0e0e20;
+    border: 1.5px dashed #33335a;
+    border-radius: 10px;
+    height: 80px;
+    margin: 12px 16px;
+    align-items: center;
+    justify-content: center;
+    color: #44446a;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    gap: 8px;
+  }
+
+  /* ── Stats bar + sort ── */
+  .stats-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px 0;
+  }
+
+  .sort-select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 0.82rem;
+    padding: 5px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    outline: none;
+  }
+
+  /* ── Recently played ── */
+  .recently-played-wrap { padding: 16px 24px 0; }
+
+  .section-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+
+  .recently-played {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .recent-card {
+    flex-shrink: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    min-width: 110px;
+    transition: all 0.15s;
+  }
+
+  .recent-card:hover { border-color: var(--accent); background: var(--card-hover); }
+  .recent-card .card-name { font-size: 0.76rem; }
+
+  /* ── Play overlay on card hover ── */
+  .play-overlay {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(to top, rgba(124,77,255,0.92) 0%, transparent 100%);
+    color: #fff;
+    font-size: 0.88rem;
+    font-weight: 700;
+    text-align: center;
+    padding: 18px 0 8px;
+    transform: translateY(100%);
+    transition: transform 0.18s;
+    border-radius: 0 0 14px 14px;
+    pointer-events: none;
+  }
+
+  .card:hover .play-overlay { transform: translateY(0); }
+
+  /* ── Favorites button ── */
+  .fav-btn {
+    position: absolute;
+    top: 7px; right: 7px;
+    background: rgba(0,0,0,0.4);
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s, transform 0.1s;
+    line-height: 1;
+    padding: 3px 5px;
+    border-radius: 6px;
+    z-index: 2;
+  }
+
+  .card:hover .fav-btn { opacity: 1; }
+  .card.favorited .fav-btn { opacity: 1; }
+  .fav-btn:hover { transform: scale(1.2); }
+
+  /* ── Footer ── */
+  footer {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-top: 24px;
+  }
+
+  footer a { color: var(--accent2); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .page-layout { grid-template-columns: 1fr; }
+    .ad-sidebar { display: none; }
+    .ad-banner-mobile { display: flex; }
+  }
+
   @media (max-width: 600px) {
     header { padding: 16px; }
-    main { padding: 16px 12px 40px; }
+    main { padding: 12px 10px 40px; }
     .grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
     .logo { font-size: 1.6rem; }
+    .stats-bar { padding: 10px 12px 0; }
+    .recently-played-wrap { padding: 12px 12px 0; }
   }
 </style>
 </head>
@@ -363,11 +535,46 @@
   <div class="filters" id="filters"></div>
 </header>
 
-<p class="stats" id="stats"></p>
+<div class="page-layout">
 
-<main>
-  <div class="grid" id="grid"></div>
-</main>
+  <aside class="ad-sidebar">
+    <div class="ad-slot ad-slot-rect"><span class="ad-icon">📢</span><span class="ad-label">Advertisement</span></div>
+    <div class="ad-slot ad-slot-sky"><span class="ad-icon">📢</span><span class="ad-label">Advertisement</span></div>
+  </aside>
+
+  <div class="page-center">
+    <div class="ad-banner-mobile"><span>📢</span>&nbsp;Advertisement</div>
+
+    <div class="stats-bar">
+      <p class="stats" id="stats"></p>
+      <select class="sort-select" id="sort-select">
+        <option value="default">Sort: Default</option>
+        <option value="az">Sort: A–Z</option>
+        <option value="za">Sort: Z–A</option>
+      </select>
+    </div>
+
+    <div class="recently-played-wrap" id="recently-played-wrap" style="display:none">
+      <div class="section-title">🕹️ Recently Played</div>
+      <div class="recently-played" id="recently-played"></div>
+    </div>
+
+    <main>
+      <div class="grid" id="grid"></div>
+    </main>
+  </div>
+
+  <aside class="ad-sidebar">
+    <div class="ad-slot ad-slot-rect"><span class="ad-icon">📢</span><span class="ad-label">Advertisement</span></div>
+    <div class="ad-slot ad-slot-sky"><span class="ad-icon">📢</span><span class="ad-label">Advertisement</span></div>
+  </aside>
+
+</div>
+
+<footer>
+  <span>🎮 Game Arcade &mdash; 300+ free games</span>
+  <a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack" target="_blank" rel="noopener">Games Source ↗</a>
+</footer>
 
 <div class="modal" id="modal">
   <div class="modal-bar">
@@ -702,18 +909,30 @@ const CAT_LABELS = {
   horror: "Horror", io: ".io Games", idle: "Idle/Clicker", minecraft: "Minecraft"
 };
 
-const cats = ["all", ...Object.keys(CAT_LABELS)];
+// Persistence
+let favorites = new Set(JSON.parse(localStorage.getItem("arcade_favs") || "[]"));
+let recentlyPlayed = JSON.parse(localStorage.getItem("arcade_recent") || "[]");
+function saveFavorites() { localStorage.setItem("arcade_favs", JSON.stringify([...favorites])); }
+function saveRecent()    { localStorage.setItem("arcade_recent", JSON.stringify(recentlyPlayed)); }
+
+const cats = ["all", "favorites", ...Object.keys(CAT_LABELS)];
 let activeFilter = "all";
 let searchQuery = "";
+let sortOrder = "default";
 
 const filtersEl = document.getElementById("filters");
-const gridEl = document.getElementById("grid");
-const statsEl = document.getElementById("stats");
+const gridEl    = document.getElementById("grid");
+const statsEl   = document.getElementById("stats");
+
+const catCounts = {};
+GAMES.forEach(g => { catCounts[g.cat] = (catCounts[g.cat] || 0) + 1; });
 
 cats.forEach(cat => {
   const btn = document.createElement("button");
   btn.className = "filter-btn" + (cat === "all" ? " active" : "");
-  btn.textContent = cat === "all" ? "All Games" : (CAT_ICONS[cat] || "") + " " + CAT_LABELS[cat];
+  if (cat === "all")       btn.textContent = `All Games (${GAMES.length})`;
+  else if (cat === "favorites") btn.textContent = `❤️ Favorites`;
+  else btn.textContent = `${CAT_ICONS[cat] || ""} ${CAT_LABELS[cat]} (${catCounts[cat] || 0})`;
   btn.dataset.cat = cat;
   btn.addEventListener("click", () => {
     activeFilter = cat;
@@ -729,35 +948,82 @@ document.getElementById("search").addEventListener("input", e => {
   render();
 });
 
+document.getElementById("sort-select").addEventListener("change", e => {
+  sortOrder = e.target.value;
+  render();
+});
+
 let filteredGames = [];
 
 function render() {
   filteredGames = GAMES.filter(g => {
+    if (activeFilter === "favorites") return favorites.has(g.name);
     const matchCat = activeFilter === "all" || g.cat === activeFilter;
     const matchSearch = !searchQuery || g.name.toLowerCase().includes(searchQuery);
     return matchCat && matchSearch;
   });
 
+  if (sortOrder === "az") filteredGames = [...filteredGames].sort((a, b) => a.name.localeCompare(b.name));
+  else if (sortOrder === "za") filteredGames = [...filteredGames].sort((a, b) => b.name.localeCompare(a.name));
+
   statsEl.textContent = `${filteredGames.length} game${filteredGames.length !== 1 ? "s" : ""} found`;
 
   if (filteredGames.length === 0) {
-    gridEl.innerHTML = '<div class="empty">No games found. Try a different search!</div>';
+    gridEl.innerHTML = activeFilter === "favorites"
+      ? '<div class="empty">No favorites yet — click ❤️ on any game to save it!</div>'
+      : '<div class="empty">No games found. Try a different search!</div>';
     return;
   }
 
-  gridEl.innerHTML = filteredGames.map((g, i) => `
-    <div class="card" data-idx="${i}">
+  gridEl.innerHTML = filteredGames.map((g, i) => {
+    const isFav = favorites.has(g.name);
+    const safeName = g.name.replace(/&/g,"&amp;").replace(/"/g,"&quot;");
+    return `
+    <div class="card${isFav ? " favorited" : ""}" data-idx="${i}">
+      <button class="fav-btn" data-name="${safeName}" title="${isFav ? "Remove from favorites" : "Add to favorites"}">${isFav ? "❤️" : "🤍"}</button>
       <div class="card-icon">${CAT_ICONS[g.cat] || "🎮"}</div>
       <div class="card-name">${g.name}</div>
       <span class="cat-badge cat-${g.cat}">${CAT_LABELS[g.cat] || g.cat}</span>
-    </div>
-  `).join("");
+      <div class="play-overlay">▶ Play</div>
+    </div>`;
+  }).join("");
 }
 
 gridEl.addEventListener("click", e => {
+  const favBtn = e.target.closest(".fav-btn");
+  if (favBtn) {
+    e.stopPropagation();
+    const name = favBtn.dataset.name;
+    if (favorites.has(name)) favorites.delete(name); else favorites.add(name);
+    saveFavorites();
+    render();
+    return;
+  }
   const card = e.target.closest(".card[data-idx]");
   if (!card) return;
   const g = filteredGames[card.dataset.idx];
+  if (g) openGame(g.name, g.url, g.cat);
+});
+
+function renderRecentlyPlayed() {
+  const wrap = document.getElementById("recently-played-wrap");
+  const container = document.getElementById("recently-played");
+  if (!recentlyPlayed.length) { wrap.style.display = "none"; return; }
+  wrap.style.display = "";
+  container.innerHTML = recentlyPlayed.map(g => {
+    const safeName = g.name.replace(/&/g,"&amp;").replace(/"/g,"&quot;");
+    return `<div class="recent-card" data-name="${safeName}">
+      <div class="card-icon" style="font-size:1.5rem">${CAT_ICONS[g.cat] || "🎮"}</div>
+      <div class="card-name">${g.name}</div>
+      <span class="cat-badge cat-${g.cat}" style="font-size:0.62rem">${CAT_LABELS[g.cat] || g.cat}</span>
+    </div>`;
+  }).join("");
+}
+
+document.getElementById("recently-played").addEventListener("click", e => {
+  const card = e.target.closest(".recent-card");
+  if (!card) return;
+  const g = GAMES.find(x => x.name === card.dataset.name);
   if (g) openGame(g.name, g.url, g.cat);
 });
 
@@ -777,6 +1043,13 @@ openTabBtn.addEventListener("click", () => {
 });
 
 async function openGame(name, url, cat) {
+  // Track recently played
+  recentlyPlayed = recentlyPlayed.filter(r => r.name !== name);
+  recentlyPlayed.unshift({ name, url, cat });
+  if (recentlyPlayed.length > 8) recentlyPlayed = recentlyPlayed.slice(0, 8);
+  saveRecent();
+  renderRecentlyPlayed();
+
   modal.classList.add("open");
   document.body.style.overflow = "hidden";
   modalTitle.textContent = (CAT_ICONS[cat] || "🎮") + "  " + name;
@@ -828,6 +1101,7 @@ document.addEventListener("keydown", e => {
 });
 
 render();
+renderRecentlyPlayed();
 </script>
 </body>
 </html>
