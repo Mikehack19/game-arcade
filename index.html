@@ -146,41 +146,48 @@
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 14px;
-    padding: 20px 14px 16px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
     cursor: pointer;
-    text-decoration: none;
     color: inherit;
     transition: all 0.18s;
     position: relative;
     overflow: hidden;
-  }
-
-  .card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, transparent 60%, rgba(124,77,255,0.07));
-    pointer-events: none;
+    display: flex;
+    flex-direction: column;
   }
 
   .card:hover {
-    background: var(--card-hover);
     border-color: var(--accent);
     transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(124,77,255,0.2);
+    box-shadow: 0 8px 24px rgba(124,77,255,0.25);
   }
 
-  .card-icon {
-    font-size: 2.4rem;
-    line-height: 1;
+  .card.kb-focused {
+    border-color: var(--accent2);
+    box-shadow: 0 0 0 3px rgba(0,229,255,0.3);
+    transform: translateY(-3px);
+  }
+
+  .card-thumb {
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .card-info {
+    padding: 10px 12px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
   }
 
   .card-name {
-    font-size: 0.88rem;
+    font-size: 0.85rem;
     font-weight: 600;
     text-align: center;
     line-height: 1.3;
@@ -218,7 +225,91 @@
     font-size: 1.1rem;
   }
 
-  /* Modal overlay */
+  /* ── Light mode ── */
+  body.light {
+    --bg: #f2f2ff;
+    --surface: #e8e8f8;
+    --card: #ffffff;
+    --card-hover: #ededff;
+    --text: #1a1a35;
+    --muted: #5555aa;
+    --border: #ccccee;
+  }
+
+  body.light header {
+    background: linear-gradient(135deg, #d8b4fe 0%, #a5f3fc 100%);
+  }
+
+  body.light .ad-slot,
+  body.light .ad-banner-mobile { background: #e8e8f8; border-color: #aaaacc; }
+
+  .theme-btn {
+    position: absolute;
+    right: 16px; top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #fff;
+    border-radius: 50%;
+    width: 38px; height: 38px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    line-height: 1;
+  }
+
+  body.light .theme-btn { background: rgba(0,0,0,0.1); border-color: rgba(0,0,0,0.2); color: #333; }
+  .theme-btn:hover { background: rgba(255,255,255,0.3); }
+
+  /* ── Featured section ── */
+  .featured-wrap { padding: 16px 24px 0; }
+
+  .featured-row {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .featured-card {
+    flex-shrink: 0;
+    width: 130px;
+    background: var(--card);
+    border: 2px solid var(--accent);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .featured-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(124,77,255,0.35);
+    border-color: var(--accent2);
+  }
+
+  .featured-badge {
+    position: absolute;
+    top: 6px; left: 6px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    z-index: 1;
+  }
+
+  .featured-card .card-thumb { height: 80px; font-size: 2.4rem; }
+  .featured-card .card-info  { padding: 7px 8px 9px; }
+  .featured-card .card-name  { font-size: 0.78rem; }
+
+  /* ── Modal overlay */
   .modal {
     display: none;
     position: fixed;
@@ -458,43 +549,47 @@
   .recent-card:hover { border-color: var(--accent); background: var(--card-hover); }
   .recent-card .card-name { font-size: 0.76rem; }
 
-  /* ── Play overlay on card hover ── */
+  /* ── Play overlay (inside .card-thumb) ── */
   .play-overlay {
     position: absolute;
-    bottom: 0; left: 0; right: 0;
-    background: linear-gradient(to top, rgba(124,77,255,0.92) 0%, transparent 100%);
+    inset: 0;
+    background: rgba(80,30,180,0.82);
     color: #fff;
-    font-size: 0.88rem;
+    font-size: 1rem;
     font-weight: 700;
-    text-align: center;
-    padding: 18px 0 8px;
-    transform: translateY(100%);
-    transition: transform 0.18s;
-    border-radius: 0 0 14px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.18s;
     pointer-events: none;
   }
 
-  .card:hover .play-overlay { transform: translateY(0); }
+  .card:hover .play-overlay { opacity: 1; }
 
   /* ── Favorites button ── */
   .fav-btn {
     position: absolute;
-    top: 7px; right: 7px;
-    background: rgba(0,0,0,0.4);
+    top: 6px; right: 6px;
+    background: rgba(0,0,0,0.45);
     border: none;
-    font-size: 1rem;
+    font-size: 0.95rem;
     cursor: pointer;
     opacity: 0;
     transition: opacity 0.15s, transform 0.1s;
     line-height: 1;
     padding: 3px 5px;
     border-radius: 6px;
-    z-index: 2;
+    z-index: 3;
   }
 
   .card:hover .fav-btn { opacity: 1; }
   .card.favorited .fav-btn { opacity: 1; }
   .fav-btn:hover { transform: scale(1.2); }
+
+  /* ── Share button ── */
+  .modal-btn.share-btn { background: #003828; border-color: #006848; }
+  .modal-btn.share-btn:hover { background: #004838; }
 
   /* ── Footer ── */
   footer {
@@ -536,9 +631,10 @@
   <div class="logo"><span>🎮</span> Game Arcade</div>
   <div class="search-bar">
     <span class="search-icon">🔍</span>
-    <input type="text" id="search" placeholder="Search games..." autocomplete="off" />
+    <input type="text" id="search" placeholder="Search games... (or press /)" autocomplete="off" />
   </div>
   <div class="filters" id="filters"></div>
+  <button class="theme-btn" id="theme-btn" title="Toggle light/dark mode">🌙</button>
 </header>
 
 <div class="page-layout">
@@ -558,6 +654,11 @@
         <option value="az">Sort: A–Z</option>
         <option value="za">Sort: Z–A</option>
       </select>
+    </div>
+
+    <div class="featured-wrap" id="featured-wrap">
+      <div class="section-title">⭐ Featured Games</div>
+      <div class="featured-row" id="featured-row"></div>
     </div>
 
     <div class="recently-played-wrap" id="recently-played-wrap" style="display:none">
@@ -586,6 +687,7 @@
   <div class="modal-bar">
     <button class="modal-btn close-btn" onclick="closeGame()">✕ Back</button>
     <div class="modal-title" id="modal-title"></div>
+    <button class="modal-btn share-btn" id="share-btn">🔗 Share</button>
     <button class="modal-btn fullscreen-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
   </div>
   <div class="modal-frame-wrap" id="modal-frame-wrap">
@@ -909,6 +1011,27 @@ const CAT_ICONS = {
   horror: "👻", io: "🌐", idle: "💰", minecraft: "⛏️"
 };
 
+const CAT_GRADIENTS = {
+  action:     "linear-gradient(135deg,#3d0010,#7a0020)",
+  platformer: "linear-gradient(135deg,#3d1a00,#7a3800)",
+  puzzle:     "linear-gradient(135deg,#2d2600,#5a4c00)",
+  racing:     "linear-gradient(135deg,#003040,#006080)",
+  shooting:   "linear-gradient(135deg,#3d0000,#7a0000)",
+  sports:     "linear-gradient(135deg,#003010,#006020)",
+  strategy:   "linear-gradient(135deg,#1a0040,#400090)",
+  simulation: "linear-gradient(135deg,#3d0030,#7a0060)",
+  horror:     "linear-gradient(135deg,#1a0000,#3d0000)",
+  io:         "linear-gradient(135deg,#003030,#006060)",
+  idle:       "linear-gradient(135deg,#302000,#604000)",
+  minecraft:  "linear-gradient(135deg,#0a2000,#154000)",
+};
+
+const FEATURED_NAMES = [
+  "Slope", "Run 3", "Happy Wheels", "Geometry Dash", "Flappy Bird",
+  "Among Us", "Cookie Clicker", "Retro Bowl", "OvO", "Bloons Tower Defense 5",
+  "Moto X3M", "Pac-Man", "2048", "Plants vs Zombies", "Minecraft 1.12"
+];
+
 const CAT_LABELS = {
   action: "Action", platformer: "Platformer", puzzle: "Puzzle", racing: "Racing",
   shooting: "Shooting", sports: "Sports", strategy: "Strategy", simulation: "Simulation",
@@ -962,6 +1085,7 @@ document.getElementById("sort-select").addEventListener("change", e => {
 let filteredGames = [];
 
 function render() {
+  kbIdx = -1;
   filteredGames = GAMES.filter(g => {
     if (activeFilter === "favorites") return favorites.has(g.name);
     const matchCat = activeFilter === "all" || g.cat === activeFilter;
@@ -984,13 +1108,18 @@ function render() {
   gridEl.innerHTML = filteredGames.map((g, i) => {
     const isFav = favorites.has(g.name);
     const safeName = g.name.replace(/&/g,"&amp;").replace(/"/g,"&quot;");
+    const grad = CAT_GRADIENTS[g.cat] || "linear-gradient(135deg,#1a1a35,#2a2a55)";
     return `
     <div class="card${isFav ? " favorited" : ""}" data-idx="${i}">
       <button class="fav-btn" data-name="${safeName}" title="${isFav ? "Remove from favorites" : "Add to favorites"}">${isFav ? "❤️" : "🤍"}</button>
-      <div class="card-icon">${CAT_ICONS[g.cat] || "🎮"}</div>
-      <div class="card-name">${g.name}</div>
-      <span class="cat-badge cat-${g.cat}">${CAT_LABELS[g.cat] || g.cat}</span>
-      <div class="play-overlay">▶ Play</div>
+      <div class="card-thumb" style="background:${grad}">
+        <span style="filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5))">${CAT_ICONS[g.cat] || "🎮"}</span>
+        <div class="play-overlay">▶ Play</div>
+      </div>
+      <div class="card-info">
+        <div class="card-name">${g.name}</div>
+        <span class="cat-badge cat-${g.cat}">${CAT_LABELS[g.cat] || g.cat}</span>
+      </div>
     </div>`;
   }).join("");
 }
@@ -1033,6 +1162,95 @@ document.getElementById("recently-played").addEventListener("click", e => {
   if (g) openGame(g.name, g.url, g.cat);
 });
 
+// ── Featured games ──
+function renderFeatured() {
+  const row = document.getElementById("featured-row");
+  const games = FEATURED_NAMES.map(n => GAMES.find(g => g.name === n)).filter(Boolean);
+  row.innerHTML = games.map(g => {
+    const grad = CAT_GRADIENTS[g.cat] || "linear-gradient(135deg,#1a1a35,#2a2a55)";
+    const safeName = g.name.replace(/&/g,"&amp;").replace(/"/g,"&quot;");
+    return `<div class="featured-card" data-name="${safeName}">
+      <span class="featured-badge">⭐ Featured</span>
+      <div class="card-thumb" style="background:${grad}">
+        <span style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5))">${CAT_ICONS[g.cat] || "🎮"}</span>
+        <div class="play-overlay">▶ Play</div>
+      </div>
+      <div class="card-info">
+        <div class="card-name">${g.name}</div>
+        <span class="cat-badge cat-${g.cat}" style="font-size:0.62rem">${CAT_LABELS[g.cat]}</span>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+document.getElementById("featured-row").addEventListener("click", e => {
+  const card = e.target.closest(".featured-card");
+  if (!card) return;
+  const g = GAMES.find(x => x.name === card.dataset.name);
+  if (g) openGame(g.name, g.url, g.cat);
+});
+
+// ── Light / dark mode ──
+const themeBtn = document.getElementById("theme-btn");
+const savedTheme = localStorage.getItem("arcade_theme");
+if (savedTheme === "light") { document.body.classList.add("light"); themeBtn.textContent = "☀️"; }
+
+themeBtn.addEventListener("click", () => {
+  const isLight = document.body.classList.toggle("light");
+  themeBtn.textContent = isLight ? "☀️" : "🌙";
+  localStorage.setItem("arcade_theme", isLight ? "light" : "dark");
+});
+
+// ── Share button ──
+let currentGameName = "";
+document.getElementById("share-btn").addEventListener("click", () => {
+  const base = location.href.split("?")[0];
+  const url = `${base}?game=${encodeURIComponent(currentGameName)}`;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.getElementById("share-btn");
+    btn.textContent = "✓ Copied!";
+    setTimeout(() => btn.textContent = "🔗 Share", 2000);
+  });
+});
+
+// ── Keyboard shortcuts ──
+let kbIdx = -1;
+
+function updateKbFocus(cards) {
+  cards.forEach((c, i) => c.classList.toggle("kb-focused", i === kbIdx));
+  if (kbIdx >= 0) cards[kbIdx]?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+}
+
+document.addEventListener("keydown", e => {
+  if (modal.classList.contains("open")) return;
+
+  // / → focus search
+  if (e.key === "/" && document.activeElement !== document.getElementById("search")) {
+    e.preventDefault();
+    document.getElementById("search").focus();
+    return;
+  }
+
+  if (["ArrowRight","ArrowLeft","ArrowDown","ArrowUp","Enter"].includes(e.key)) {
+    const cards = [...gridEl.querySelectorAll(".card[data-idx]")];
+    if (!cards.length) return;
+
+    if (e.key === "Enter" && kbIdx >= 0) {
+      const g = filteredGames[kbIdx];
+      if (g) openGame(g.name, g.url, g.cat);
+      return;
+    }
+
+    e.preventDefault();
+    if (e.key === "ArrowRight" || e.key === "ArrowDown")
+      kbIdx = Math.min(kbIdx + 1, cards.length - 1);
+    else
+      kbIdx = Math.max(kbIdx - 1, 0);
+
+    updateKbFocus(cards);
+  }
+});
+
 const modal = document.getElementById("modal");
 const gameFrame = document.getElementById("game-frame");
 const modalTitle = document.getElementById("modal-title");
@@ -1060,6 +1278,8 @@ async function openGame(name, url, cat) {
   document.body.style.overflow = "hidden";
   modalTitle.textContent = (CAT_ICONS[cat] || "🎮") + "  " + name;
   currentGameUrl = url;
+  currentGameName = name;
+  kbIdx = -1;
 
   // Reset loading UI
   modalLoading.classList.remove("hidden");
@@ -1106,8 +1326,16 @@ document.addEventListener("keydown", e => {
   if (e.key === "Escape" && modal.classList.contains("open")) closeGame();
 });
 
+// ── URL share param: auto-open game if ?game= is present ──
+const shareParam = new URLSearchParams(location.search).get("game");
+if (shareParam) {
+  const g = GAMES.find(x => x.name === shareParam);
+  if (g) setTimeout(() => openGame(g.name, g.url, g.cat), 300);
+}
+
 render();
 renderRecentlyPlayed();
+renderFeatured();
 </script>
 </body>
 </html>
