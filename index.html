@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Arcade</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0d1a;
+    --surface: #13132a;
+    --card: #1a1a35;
+    --card-hover: #22224a;
+    --accent: #7c4dff;
+    --accent2: #00e5ff;
+    --text: #e0e0ff;
+    --muted: #8888aa;
+    --border: #2a2a55;
+    --cat-action: #ff4d6d;
+    --cat-platformer: #ff9a3c;
+    --cat-puzzle: #ffd700;
+    --cat-racing: #00e5ff;
+    --cat-shooting: #ff4d4d;
+    --cat-sports: #4cff91;
+    --cat-strategy: #b97cff;
+    --cat-simulation: #ff79c6;
+    --cat-horror: #ff2e63;
+    --cat-io: #00ffcc;
+    --cat-idle: #ffb347;
+    --cat-minecraft: #6dcd4f;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+  }
+
+  header {
+    background: linear-gradient(135deg, #1a0533 0%, #0d1a3a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 24px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+  }
+
+  .logo {
+    font-size: 2.2rem;
+    font-weight: 900;
+    letter-spacing: -1px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .logo span { font-size: 1.8rem; }
+
+  .search-bar {
+    width: 100%;
+    max-width: 520px;
+    position: relative;
+  }
+
+  .search-bar input {
+    width: 100%;
+    padding: 12px 20px 12px 44px;
+    border-radius: 999px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-bar input:focus { border-color: var(--accent); }
+  .search-bar input::placeholder { color: var(--muted); }
+
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 1.1rem;
+  }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    max-width: 900px;
+  }
+
+  .filter-btn {
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+  .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  .stats {
+    color: var(--muted);
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 12px 32px 0;
+  }
+
+  main {
+    padding: 24px 32px 48px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+    margin-top: 4px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 14px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.18s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 60%, rgba(124,77,255,0.07));
+    pointer-events: none;
+  }
+
+  .card:hover {
+    background: var(--card-hover);
+    border-color: var(--accent);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(124,77,255,0.2);
+  }
+
+  .card-icon {
+    font-size: 2.4rem;
+    line-height: 1;
+  }
+
+  .card-name {
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.3;
+    color: var(--text);
+  }
+
+  .cat-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 3px 9px;
+    border-radius: 999px;
+    opacity: 0.85;
+  }
+
+  .cat-action   { background: var(--cat-action);   color: #000; }
+  .cat-platformer { background: var(--cat-platformer); color: #000; }
+  .cat-puzzle   { background: var(--cat-puzzle);   color: #000; }
+  .cat-racing   { background: var(--cat-racing);   color: #000; }
+  .cat-shooting { background: var(--cat-shooting); color: #fff; }
+  .cat-sports   { background: var(--cat-sports);   color: #000; }
+  .cat-strategy { background: var(--cat-strategy); color: #000; }
+  .cat-simulation { background: var(--cat-simulation); color: #000; }
+  .cat-horror   { background: var(--cat-horror);   color: #fff; }
+  .cat-io       { background: var(--cat-io);       color: #000; }
+  .cat-idle     { background: var(--cat-idle);     color: #000; }
+  .cat-minecraft { background: var(--cat-minecraft); color: #000; }
+
+  .empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--muted);
+    padding: 60px 0;
+    font-size: 1.1rem;
+  }
+
+  /* Modal overlay */
+  .modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: #000;
+    flex-direction: column;
+  }
+
+  .modal.open { display: flex; }
+
+  .modal-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    background: #111;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .modal-title {
+    flex: 1;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .modal-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+
+  .modal-btn:hover { background: var(--card-hover); }
+  .modal-btn.close-btn { background: #3a0000; border-color: #700; }
+  .modal-btn.close-btn:hover { background: #5a0000; }
+
+  .modal-btn.fullscreen-btn { background: #001a3a; border-color: #007; }
+  .modal-btn.fullscreen-btn:hover { background: #002a5a; }
+
+  .modal-frame-wrap {
+    flex: 1;
+    position: relative;
+    background: #000;
+  }
+
+  .modal-frame-wrap iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  .modal-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    background: #000;
+    color: var(--muted);
+    font-size: 1rem;
+    transition: opacity 0.3s;
+  }
+
+  .modal-loading.hidden { opacity: 0; pointer-events: none; }
+
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .progress-bar-wrap {
+    width: 220px;
+    height: 6px;
+    background: var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+    display: none;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 999px;
+    width: 0%;
+    transition: width 0.2s;
+  }
+
+  .loading-label {
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+
+  .open-tab-btn {
+    margin-top: 4px;
+    padding: 8px 18px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: none;
+  }
+
+  .open-tab-btn:hover { background: #6a3de8; }
+
+  @media (max-width: 600px) {
+    header { padding: 16px; }
+    main { padding: 16px 12px 40px; }
+    .grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+    .logo { font-size: 1.6rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><span>🎮</span> Game Arcade</div>
+  <div class="search-bar">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="search" placeholder="Search games..." autocomplete="off" />
+  </div>
+  <div class="filters" id="filters"></div>
+</header>
+
+<p class="stats" id="stats"></p>
+
+<main>
+  <div class="grid" id="grid"></div>
+</main>
+
+<div class="modal" id="modal">
+  <div class="modal-bar">
+    <button class="modal-btn close-btn" onclick="closeGame()">✕ Back</button>
+    <div class="modal-title" id="modal-title"></div>
+    <button class="modal-btn fullscreen-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+  </div>
+  <div class="modal-frame-wrap" id="modal-frame-wrap">
+    <div class="modal-loading" id="modal-loading">
+      <div class="spinner" id="modal-spinner"></div>
+      <div class="loading-label" id="loading-label">Loading game…</div>
+      <button class="open-tab-btn" id="open-tab-btn">Open in New Tab Instead</button>
+    </div>
+    <iframe id="game-frame" allowfullscreen></iframe>
+  </div>
+</div>
+
+<script>
+const GAMES = [
+  { name: "Minecraft 1.12", cat: "minecraft", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/1.12.html" },
+  { name: "Minecraft 1.5", cat: "minecraft", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/1.5.html" },
+  { name: "Minecraft 1.8", cat: "minecraft", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/1.8.html" },
+  { name: "10 Minutes Till Dawn", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/10minutestilldawn.html" },
+  { name: "12 Mini Battles", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/12minibattles.html" },
+  { name: "1 on 1 Soccer", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/1on1soccer.html" },
+  { name: "1 on 1 Tennis", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/1on1tennis.html" },
+  { name: "1v1.lol", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/1v1.lol.html" },
+  { name: "2048", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/2048.html" },
+  { name: "2048 Cupcakes", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/2048cupcakes.html" },
+  { name: "3D Flight Simulator", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/3Dflightsimulator.html" },
+  { name: "8 Ball Classic", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/8ballclassic.html" },
+  { name: "Minecraft Alpha 1.2.6", cat: "minecraft", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/Alpha_1.2.6.html" },
+  { name: "Minecraft Beta 1.3", cat: "minecraft", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/Beta_1.3.html" },
+  { name: "Minecraft Indev", cat: "minecraft", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/Indev.html" },
+  { name: "Agario Lite", cat: "io", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/agariolite.html" },
+  { name: "Age of War", cat: "strategy", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ageofwar.html" },
+  { name: "Age of War 2", cat: "strategy", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ageofwar2.html" },
+  { name: "Ages of Conflict", cat: "strategy", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/agesofconflict.html" },
+  { name: "Among Us", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/amongus.html" },
+  { name: "Angry Birds", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/angrybirds.html" },
+  { name: "Angry Birds Showdown", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/angrybirdsshowdown.html" },
+  { name: "Angry Birds Space", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/angrybirdsspace.html" },
+  { name: "Awesome Tanks", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/awesometanks.html" },
+  { name: "Awesome Tanks 2", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/awesometanks2.html" },
+  { name: "Backrooms", cat: "horror", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/backrooms.html" },
+  { name: "Bacon May Die", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/baconmaydie.html" },
+  { name: "Bad Ice Cream", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/badicecream.html" },
+  { name: "Bad Ice Cream 2", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/badicecream2.html" },
+  { name: "Bad Ice Cream 3", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/badicecream3.html" },
+  { name: "Bad Parenting", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/badparenting.html" },
+  { name: "Bad Piggies", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/badpiggies.html" },
+  { name: "Baldi's Basics", cat: "horror", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/baldisbasics.html" },
+  { name: "Baseball Bros", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/baseballbros.html" },
+  { name: "Basketball Legends", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/basketballlegends.html" },
+  { name: "Basketball Stars", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/basketballstars.html" },
+  { name: "Basket Bros", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/basketbros.html" },
+  { name: "Basket Random", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/basketrandom.html" },
+  { name: "BitLife", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bitlife.html" },
+  { name: "Bit Planes", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bitplanes.htm" },
+  { name: "Blocky Snakes", cat: "io", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/blockysnakes.html" },
+  { name: "Bloons Tower Defense", cat: "strategy", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloonsTD.html" },
+  { name: "Bloons Tower Defense 2", cat: "strategy", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloonsTD2.html" },
+  { name: "Bloons Tower Defense 3", cat: "strategy", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloonsTD3.html" },
+  { name: "Bloons Tower Defense 4", cat: "strategy", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloonsTD4.html" },
+  { name: "Bloons Tower Defense 5", cat: "strategy", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloonsTD5.html" },
+  { name: "Bloxorz", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloxorz.html" },
+  { name: "Blumgi Racers", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/blumgiracers.html" },
+  { name: "Blumgi Rocket", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/blumgirocket.html" },
+  { name: "Bob the Robber", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bobtherobber.html" },
+  { name: "Bob the Robber 2", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bobtherobber2.html" },
+  { name: "Bob the Robber 5", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bobtherobber5.html" },
+  { name: "Bouncy Motors", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bouncymotors.html" },
+  { name: "Bowmasters", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bowmasters.html" },
+  { name: "Boxing Random", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/boxingrandom.htm" },
+  { name: "Breaking the Bank", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/breakingthebank.html" },
+  { name: "Bubble Shooter", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bubbleshooter.html" },
+  { name: "Candy Crush", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/candycrush.html" },
+  { name: "Capybara Clicker", cat: "idle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/capybaraclicker.html" },
+  { name: "Car Drawing", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cardrawing.html" },
+  { name: "Carking Arena", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/carkingarena.html" },
+  { name: "Chess", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/chess.html" },
+  { name: "Choppy Orc", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/choppyorc.html" },
+  { name: "CircloO", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/circloO.html" },
+  { name: "CircloO 2", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/circloO2.html" },
+  { name: "Clash of Vikings", cat: "strategy", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/clashofvikings.html" },
+  { name: "Cleanup.io", cat: "io", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cleanupio.html" },
+  { name: "Cluster Rush", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/clusterrush.html" },
+  { name: "Cookie Clicker", cat: "idle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cookieclicker.htm" },
+  { name: "Crazy Cars", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/crazycars.html" },
+  { name: "Crazy Cattle 3D", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/crazycattle3D.html" },
+  { name: "Crazy Crash Landing", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/crazycrashlanding.html" },
+  { name: "Crazy Motorcycle", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/crazymotorcycle.html" },
+  { name: "Crossy Road", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/crossyroad.htm" },
+  { name: "Cut the Rope", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cuttherope.html" },
+  { name: "Dadish", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/dadish.html" },
+  { name: "Dadish 2", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/dadish2.html" },
+  { name: "Dadish 3", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/dadish3.html" },
+  { name: "Death Chase", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/deathchase.html" },
+  { name: "Death Run 3D", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/deathrun3D.html" },
+  { name: "Demolition Derby Crash Racing", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/demolitionderbycrashracing.html" },
+  { name: "Doodle Jump", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/doodlejump.html" },
+  { name: "Draw Climber", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/drawclimber.html" },
+  { name: "Dread Head Parkour", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/dreadheadparkour.htm" },
+  { name: "Drift Boss", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/driftboss.htm" },
+  { name: "Drive Mad", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/drivemad.htm" },
+  { name: "Duck Life", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ducklife.html" },
+  { name: "Duck Life 2", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ducklife2.html" },
+  { name: "Duck Life 3", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ducklife3.html" },
+  { name: "Duck Life 4", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ducklife4.html" },
+  { name: "Duck Life 5", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ducklife5.html" },
+  { name: "Ducklings.io", cat: "io", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ducklingsio.html" },
+  { name: "Eagle Ride", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/eagleride.html" },
+  { name: "Earn to Die", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/earntodie.html" },
+  { name: "Earn to Die 2", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/earntodie2.html" },
+  { name: "Eggy Car", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/eggycar.html" },
+  { name: "Elastic Face", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/elasticface.htm" },
+  { name: "Escape Road", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/escaperoad.html" },
+  { name: "Escape Road 2", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/escaperoad2.html" },
+  { name: "Escaping the Prison", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/escapingtheprison.html" },
+  { name: "Evil Glitch", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/evilglitch.html" },
+  { name: "Fancy Pants Adventure", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fancypantsadventure.html" },
+  { name: "Fancy Pants Adventure 2", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fancypantsadventure2.html" },
+  { name: "Fireboy and Watergirl", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fireboyandwatergirl.html" },
+  { name: "Fireboy and Watergirl 2", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fireboyandwatergirl2.html" },
+  { name: "Fireboy and Watergirl 3", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fireboyandwatergirl3.html" },
+  { name: "Fireboy and Watergirl 4", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fireboyandwatergirl4.html" },
+  { name: "Flappy Bird", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/flappybird.html" },
+  { name: "Flood Runner 2", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/floodrunner2.html" },
+  { name: "Flood Runner 3", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/floodrunner3.html" },
+  { name: "Flood Runner 4", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/floodrunner4.html" },
+  { name: "Five Nights at Freddy's", cat: "horror", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fnaf.html" },
+  { name: "Five Nights at Freddy's 2", cat: "horror", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fnaf2.html" },
+  { name: "Five Nights at Freddy's 3", cat: "horror", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fnaf3.html" },
+  { name: "Five Nights at Freddy's 4", cat: "horror", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fnaf4.html" },
+  { name: "Football Bros", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/footballbros.html" },
+  { name: "Football Legends", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/footballlegends.html" },
+  { name: "Free Rider 3", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/freerider3.html" },
+  { name: "Fruit Ninja", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fruitninja.html" },
+  { name: "Funny Battle", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/funnybattle.html" },
+  { name: "Funny Battle 2", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/funnybattle2.html" },
+  { name: "Funny Mad Racing", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/funnymadracing.html" },
+  { name: "Funny Shooter 2", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/funnyshooter2.html" },
+  { name: "Geometry Dash", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/geometrydash.html" },
+  { name: "Geometry Dash Lite", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/geometrydashlite.html" },
+  { name: "Geometry Vibes", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/geometryvibes.html" },
+  { name: "Getaway Shootout", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/getawayshootout.htm" },
+  { name: "Get on Top", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/getontop.html" },
+  { name: "Gladihoppers", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/gladihoppers.html" },
+  { name: "Google Baseball", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/googlebaseball.html" },
+  { name: "Google Dino", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/googledino.html" },
+  { name: "Granny", cat: "horror", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/granny.html" },
+  { name: "Granny 2", cat: "horror", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/granny2.html" },
+  { name: "Guess Their Answer", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/guesstheiranswer.html" },
+  { name: "Hanger 2", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/hanger2.html" },
+  { name: "Happy Wheels", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/happywheels.html" },
+  { name: "Helix Jump", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/helixjump.html" },
+  { name: "Highway Traffic", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/highwaytraffic.html" },
+  { name: "Hill Climb Racing Lite", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/hillclimbracinglite.html" },
+  { name: "Hole.io", cat: "io", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/holeio.html" },
+  { name: "House of Hazards", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/houseofhazards.html" },
+  { name: "Hover Racer Drive", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/hoverracerdrive.html" },
+  { name: "Idle Breakout", cat: "idle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/idlebreakout.html" },
+  { name: "Iron Snout", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ironsnout.html" },
+  { name: "Jetpack Joyride", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/jetpackjoyride.html" },
+  { name: "Johnny Trigger", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/johnnytrigger.html" },
+  { name: "Jumping Shell", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/jumpingshell.html" },
+  { name: "Karate Bros", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/karatebros.html" },
+  { name: "Kart Bros", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/kartbros.html" },
+  { name: "Learn to Fly", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/learntofly.html" },
+  { name: "Learn to Fly 2", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/learntofly2.html" },
+  { name: "Learn to Fly 3", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/learntofly3.html" },
+  { name: "Learn to Fly Idle", cat: "idle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/learntoflyidle.html" },
+  { name: "Level Devil", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/leveldevil.html" },
+  { name: "Madalin Stunt Cars 2", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/madalinstuntcars2.html" },
+  { name: "Melon Playground", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/melonplayground.html" },
+  { name: "Merge Round Racers", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/mergeroundracers.html" },
+  { name: "Minesweeper", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/minesweeper.html" },
+  { name: "Monkey Mart", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/monkeymart.htm" },
+  { name: "Monster Tracks", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/monstertracks.html" },
+  { name: "Moto X3M", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/motox3m.htm" },
+  { name: "Moto X3M 2", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/motox3m2.html" },
+  { name: "Moto X3M 3", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/motox3m3.html" },
+  { name: "Moto X3M Pool Party", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/motox3mpoolparty.html" },
+  { name: "Moto X3M Spooky Land", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/motox3mspookyland.html" },
+  { name: "Moto X3M Winter", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/motox3mwinter.html" },
+  { name: "Noob Miner", cat: "idle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/noobminer.html" },
+  { name: "Opposite Day", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/oppositeday.html" },
+  { name: "OvO", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ovo.html" },
+  { name: "OvO 2", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ovo2.html" },
+  { name: "OvO 3 Dimensions", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ovo3dimensions.html" },
+  { name: "Pac-Man", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/pacman.html" },
+  { name: "Papa's Bakeria", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papasbakeria.html" },
+  { name: "Papa's Burgeria", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papasburgeria.html" },
+  { name: "Papa's Cheeseria", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papascheeseria.html" },
+  { name: "Papa's Cupcakeria", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papascupcakeria.html" },
+  { name: "Papa's Donuteria", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papasdonuteria.html" },
+  { name: "Papa's Freezeria", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papasfreezeria.html" },
+  { name: "Papa's Hot Doggeria", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papashotdoggeria.html" },
+  { name: "Papa's Pancakeria", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papaspancakeria.html" },
+  { name: "Papa's Pastaria", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papaspastaria.html" },
+  { name: "Papa's Pizzeria", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papaspizzeria.html" },
+  { name: "Papa's Scooperia", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papasscooperia.html" },
+  { name: "Papa's Sushiria", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papassushiria.html" },
+  { name: "Papa's Tacomia", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papastacomia.html" },
+  { name: "Papa's Wingeria", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papaswingeria.html" },
+  { name: "Paper.io 2", cat: "io", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/paperio2.htm" },
+  { name: "Parking Fury", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/parkingfury.html" },
+  { name: "Parking Fury 2", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/parkingfury2.html" },
+  { name: "Parking Fury 3", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/parkingfury3.html" },
+  { name: "Pico's School", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/picosschool.html" },
+  { name: "Ping Pong Chaos", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/pingpongchaos.html" },
+  { name: "Pixel Speedrun", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/pixelspeedrun.html" },
+  { name: "Plants vs Zombies", cat: "strategy", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/plantsvszombies.html" },
+  { name: "Plonky", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/plonky.html" },
+  { name: "Polytrack", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/polytrack.html" },
+  { name: "Poor Bunny", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/poorbunny.html" },
+  { name: "Pou", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/pou.html" },
+  { name: "Ragdoll Archers", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ragdollarchers.htm" },
+  { name: "Ragdoll Hit", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ragdollhit.html" },
+  { name: "Ragdoll Soccer", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ragdollsoccer.html" },
+  { name: "Red Ball 4 Vol.1", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/redball4vol1.html" },
+  { name: "Red Ball 4 Vol.2", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/redball4vol2.html" },
+  { name: "Red Ball 4 Vol.3", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/redball4vol3.html" },
+  { name: "Retro Bowl", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/retrobowl.html" },
+  { name: "Retro Bowl College", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/retrobowlcollege.html" },
+  { name: "Retro Highway", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/retrohighway.html" },
+  { name: "Retro Ping Pong", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/retropingpong.html" },
+  { name: "Riddle School", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddleschool.html" },
+  { name: "Riddle School 2", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddleschool2.html" },
+  { name: "Riddle School 3", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddleschool3.html" },
+  { name: "Riddle School 4", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddleschool4.html" },
+  { name: "Riddle School 5", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddleschool5.html" },
+  { name: "Riddle Transfer", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddletransfer.html" },
+  { name: "Riddle Transfer 2", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddletransfer2.html" },
+  { name: "Rocket Soccer Derby", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/rocketsoccerderby.html" },
+  { name: "Rooftop Snipers", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/rooftopsnipers.htm" },
+  { name: "Rooftop Snipers 2", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/rooftopsnipers2.html" },
+  { name: "Run", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/run.html" },
+  { name: "Run 2", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/run2.html" },
+  { name: "Run 3", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/run3.html" },
+  { name: "Sand Game", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/sandgame.html" },
+  { name: "Short Life", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/shortlife.html" },
+  { name: "Slope", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/slope.html" },
+  { name: "Slope 2 Player", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/slope2player.html" },
+  { name: "Slope 3", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/slope3.html" },
+  { name: "Slow Roads", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/slowroads.html" },
+  { name: "Super Mario 63", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/sm63.html" },
+  { name: "Super Mario 64", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/sm64.html" },
+  { name: "Snowball.io", cat: "io", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snowballio.html" },
+  { name: "Snow Rider", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snowrider.htm" },
+  { name: "Snow Road", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snowroad.htm" },
+  { name: "Soccer Bros", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/soccerbros.html" },
+  { name: "Soccer Random", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/soccerrandom.htm" },
+  { name: "Spacebar Clicker", cat: "idle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/spacebarclicker.html" },
+  { name: "Space is Key", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/spaceiskey.html" },
+  { name: "Space is Key 2", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/spaceiskey2.html" },
+  { name: "Space Waves", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/spacewaves.html" },
+  { name: "Speed Stars", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/speedstars.html" },
+  { name: "Sprunki", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/sprunki.html" },
+  { name: "Stack", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stack.html" },
+  { name: "Stacktris", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stacktris.html" },
+  { name: "State.io", cat: "strategy", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stateio.html" },
+  { name: "Stick Archers Battle", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stickarchersbattle.html" },
+  { name: "Stick Fighter", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stickfighter.html" },
+  { name: "Stickman Hook", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stickmanhook.html" },
+  { name: "Stick Merge", cat: "idle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stickmerge.html" },
+  { name: "Subway Surfers Beijing", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/subwaysurfersbeijing.html" },
+  { name: "Subway Surfers Havana", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/subwaysurfershavana.html" },
+  { name: "Subway Surfers San Francisco", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/subwaysurferssanfrancisco.html" },
+  { name: "Super Bike the Champion", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/superbikethechampion.html" },
+  { name: "Super Hot", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/superhot.html" },
+  { name: "Super Liquid Soccer", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/superliquidsoccer.html" },
+  { name: "Superstar Car", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/superstarcar.html" },
+  { name: "Table Tennis World Tour", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tabletennisworldtour.html" },
+  { name: "Tag", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tag.html" },
+  { name: "Tap Road", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/taproad.html" },
+  { name: "Temple of Boom", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/templeofboom.html" },
+  { name: "Temple Run 2", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/templerun2.htm" },
+  { name: "Territorial.io", cat: "strategy", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/territorialio.html" },
+  { name: "The Impossible Quiz", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/theimpossiblequiz.html" },
+  { name: "The Impossible Quiz 2", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/theimpossiblequiz2.html" },
+  { name: "There Is No Game", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/thereisnog.html" },
+  { name: "They Are Coming", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/theyarecoming.html" },
+  { name: "This is the Only Level", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/thisistheonlylevel.html" },
+  { name: "This is the Only Level Too", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/thisistheonlyleveltoo.html" },
+  { name: "Time Shooter 2", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/timeshooter2.html" },
+  { name: "Time Shooter 3", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/timeshooter3.htm" },
+  { name: "Tiny Fishing", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tinyfishing.html" },
+  { name: "Tomb of the Mask", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tombofthemask.htm" },
+  { name: "Trap the Cat", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/trapthecat.html" },
+  { name: "Trivia Crack", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/triviacrack.html" },
+  { name: "Tube Jumpers", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tubejumpers.html" },
+  { name: "Tunnel Rush", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tunnelrush.html" },
+  { name: "Unicycle Hero", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/unicyclehero.html" },
+  { name: "Vex 4", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex4.html" },
+  { name: "Vex 5", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex5.html" },
+  { name: "Vex 6", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex6.htm" },
+  { name: "Vex 7", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex7.htm" },
+  { name: "Vex 8", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex8.htm" },
+  { name: "Vexx 3M", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vexx3m.html" },
+  { name: "Vexx 3M 2", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vexx3m2.html" },
+  { name: "Volley Random", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/volleyrandom.html" },
+  { name: "War the Knights", cat: "strategy", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wartheknights.html" },
+  { name: "We Become What We Behold", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/webecomewhatwebehold.html" },
+  { name: "Wheelie Bike", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheeliebike.html" },
+  { name: "Wheely", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely.html" },
+  { name: "Wheely 2", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely2.html" },
+  { name: "Wheely 3", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely3.html" },
+  { name: "Wheely 4", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely4.html" },
+  { name: "Wheely 5", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely5.html" },
+  { name: "Wheely 6", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely6.html" },
+  { name: "Wheely 7", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely7.html" },
+  { name: "Wheely 8", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely8.html" },
+  { name: "Wordle Unlimited", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wordleunlimited.html" },
+  { name: "World's Hardest Game", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/worldshardestgame.html" },
+  { name: "World's Hardest Game 2", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/worldshardestgame2.html" },
+  { name: "World's Hardest Game 3", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/worldshardestgame3.html" },
+  { name: "Wrestle Bros", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wrestlebros.html" },
+  { name: "Zombie Rush", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/zombierush.html" }
+];
+
+
+const CAT_ICONS = {
+  action: "⚔️", platformer: "🏃", puzzle: "🧩", racing: "🏎️",
+  shooting: "🔫", sports: "⚽", strategy: "🏰", simulation: "🎭",
+  horror: "👻", io: "🌐", idle: "💰", minecraft: "⛏️"
+};
+
+const CAT_LABELS = {
+  action: "Action", platformer: "Platformer", puzzle: "Puzzle", racing: "Racing",
+  shooting: "Shooting", sports: "Sports", strategy: "Strategy", simulation: "Simulation",
+  horror: "Horror", io: ".io Games", idle: "Idle/Clicker", minecraft: "Minecraft"
+};
+
+const cats = ["all", ...Object.keys(CAT_LABELS)];
+let activeFilter = "all";
+let searchQuery = "";
+
+const filtersEl = document.getElementById("filters");
+const gridEl = document.getElementById("grid");
+const statsEl = document.getElementById("stats");
+
+cats.forEach(cat => {
+  const btn = document.createElement("button");
+  btn.className = "filter-btn" + (cat === "all" ? " active" : "");
+  btn.textContent = cat === "all" ? "All Games" : (CAT_ICONS[cat] || "") + " " + CAT_LABELS[cat];
+  btn.dataset.cat = cat;
+  btn.addEventListener("click", () => {
+    activeFilter = cat;
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    render();
+  });
+  filtersEl.appendChild(btn);
+});
+
+document.getElementById("search").addEventListener("input", e => {
+  searchQuery = e.target.value.toLowerCase();
+  render();
+});
+
+let filteredGames = [];
+
+function render() {
+  filteredGames = GAMES.filter(g => {
+    const matchCat = activeFilter === "all" || g.cat === activeFilter;
+    const matchSearch = !searchQuery || g.name.toLowerCase().includes(searchQuery);
+    return matchCat && matchSearch;
+  });
+
+  statsEl.textContent = `${filteredGames.length} game${filteredGames.length !== 1 ? "s" : ""} found`;
+
+  if (filteredGames.length === 0) {
+    gridEl.innerHTML = '<div class="empty">No games found. Try a different search!</div>';
+    return;
+  }
+
+  gridEl.innerHTML = filteredGames.map((g, i) => `
+    <div class="card" data-idx="${i}">
+      <div class="card-icon">${CAT_ICONS[g.cat] || "🎮"}</div>
+      <div class="card-name">${g.name}</div>
+      <span class="cat-badge cat-${g.cat}">${CAT_LABELS[g.cat] || g.cat}</span>
+    </div>
+  `).join("");
+}
+
+gridEl.addEventListener("click", e => {
+  const card = e.target.closest(".card[data-idx]");
+  if (!card) return;
+  const g = filteredGames[card.dataset.idx];
+  if (g) openGame(g.name, g.url, g.cat);
+});
+
+const modal = document.getElementById("modal");
+const gameFrame = document.getElementById("game-frame");
+const modalTitle = document.getElementById("modal-title");
+const modalLoading = document.getElementById("modal-loading");
+const loadingLabel = document.getElementById("loading-label");
+const openTabBtn = document.getElementById("open-tab-btn");
+const modalSpinner = document.getElementById("modal-spinner");
+let currentBlobUrl = null;
+let currentGameUrl = null;
+
+openTabBtn.addEventListener("click", () => {
+  window.open(currentGameUrl, "_blank");
+  closeGame();
+});
+
+async function openGame(name, url, cat) {
+  modal.classList.add("open");
+  document.body.style.overflow = "hidden";
+  modalTitle.textContent = (CAT_ICONS[cat] || "🎮") + "  " + name;
+  currentGameUrl = url;
+
+  // Reset loading UI
+  modalLoading.classList.remove("hidden");
+  modalSpinner.style.display = "";
+  loadingLabel.textContent = "Loading game…";
+  loadingLabel.style.color = "";
+  openTabBtn.style.display = "none";
+  gameFrame.src = "";
+  if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); currentBlobUrl = null; }
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const html = await res.text();
+    const blob = new Blob([html], { type: "text/html" });
+    currentBlobUrl = URL.createObjectURL(blob);
+    gameFrame.onload = () => modalLoading.classList.add("hidden");
+    gameFrame.src = currentBlobUrl;
+  } catch (err) {
+    console.error("Game load error:", err);
+    modalSpinner.style.display = "none";
+    loadingLabel.style.color = "#ff6b6b";
+    loadingLabel.textContent = `Failed to load (${err.message}) — try opening in a new tab instead.`;
+    openTabBtn.style.display = "";
+  }
+}
+
+function closeGame() {
+  modal.classList.remove("open");
+  gameFrame.src = "";
+  document.body.style.overflow = "";
+}
+
+function toggleFullscreen() {
+  const wrap = document.getElementById("modal-frame-wrap");
+  if (!document.fullscreenElement) {
+    wrap.requestFullscreen().catch(() => {});
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && modal.classList.contains("open")) closeGame();
+});
+
+render();
+</script>
+</body>
+</html>
