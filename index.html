@@ -928,9 +928,9 @@
 </footer>
 </div><!-- end #section-games -->
 
-<div class="iframe-section" id="section-chat"></div>
-<div class="iframe-section" id="section-notes"></div>
-<div class="iframe-section" id="section-links"></div>
+<div id="section-chat" style="display:none;height:calc(100vh - 90px)"></div>
+<div id="section-notes" style="display:none;height:calc(100vh - 90px)"></div>
+<div id="section-links" style="display:none;height:calc(100vh - 90px)"></div>
 
 <div class="modal" id="modal">
   <div class="modal-bar">
@@ -1624,37 +1624,34 @@ const TAB_SRCS = { chat: "/chat.html", notes: "/homework.html", links: "/go.html
 const iframeCache = {};
 
 function switchTab(tab) {
-  // Update tab buttons
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
 
-  // Toggle sections
-  document.getElementById("section-games").classList.toggle("active", tab === "games");
+  // Show/hide sections via inline style (reliable, no CSS specificity issues)
   document.getElementById("section-games").style.display = tab === "games" ? "" : "none";
   ["chat", "notes", "links"].forEach(t => {
-    const el = document.getElementById(`section-${t}`);
-    el.classList.toggle("active", t === tab);
+    document.getElementById(`section-${t}`).style.display = t === tab ? "block" : "none";
   });
 
-  // Hide/show arcade-only header stuff
-  const gamesOnly = document.getElementById("search")?.closest(".search-bar");
-  const filtersEl2 = document.getElementById("filters");
-  if (gamesOnly) gamesOnly.style.display = tab === "games" ? "" : "none";
-  if (filtersEl2) filtersEl2.style.display = tab === "games" ? "" : "none";
+  // Hide arcade-specific header elements when not on games tab
+  const searchBar = document.querySelector(".search-bar");
+  const filters   = document.getElementById("filters");
+  if (searchBar) searchBar.style.display = tab === "games" ? "" : "none";
+  if (filters)   filters.style.display   = tab === "games" ? "" : "none";
 
-  // Lazy-load iframes
+  // Lazy-create iframe on first visit
   if (tab !== "games" && !iframeCache[tab]) {
     const iframe = document.createElement("iframe");
     iframe.src = TAB_SRCS[tab];
     iframe.allow = "fullscreen";
+    iframe.style.cssText = "width:100%;height:100%;border:none;display:block";
     document.getElementById(`section-${tab}`).appendChild(iframe);
     iframeCache[tab] = true;
   }
 
-  // Hash routing
   history.replaceState(null, "", tab === "games" ? "/" : `/#${tab}`);
 }
 
-// Restore tab from hash on load
+// Restore tab from URL hash on load
 const initTab = location.hash.slice(1);
 if (["chat", "notes", "links"].includes(initTab)) switchTab(initTab);
 
