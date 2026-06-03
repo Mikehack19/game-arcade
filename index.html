@@ -791,6 +791,70 @@
   .tab-btn:hover { background: var(--surface); color: var(--text); }
   .tab-btn.active { background: var(--accent); color: #fff; }
 
+  /* ── Home screen ── */
+  .home-screen {
+    min-height: calc(100vh - 90px);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 40px 24px;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124,77,255,0.12) 0%, transparent 70%);
+  }
+
+  .home-title {
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    font-weight: 900; letter-spacing: -1px; margin-bottom: 8px;
+    background: linear-gradient(135deg, #fff 30%, var(--accent2) 70%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    text-align: center;
+  }
+
+  .home-sub {
+    color: var(--muted); font-size: 1rem; margin-bottom: 48px; text-align: center;
+  }
+
+  .home-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px; width: 100%; max-width: 700px;
+  }
+
+  .home-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 20px; padding: 36px 28px;
+    cursor: pointer; text-align: center;
+    transition: all 0.2s; position: relative; overflow: hidden;
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
+  }
+
+  .home-card::before {
+    content: ''; position: absolute; inset: 0;
+    opacity: 0; transition: opacity 0.2s;
+  }
+
+  .home-card.games::before  { background: radial-gradient(circle at 50% 0%, rgba(124,77,255,0.15), transparent 70%); }
+  .home-card.chat::before   { background: radial-gradient(circle at 50% 0%, rgba(0,229,255,0.15), transparent 70%); }
+  .home-card.work::before   { background: radial-gradient(circle at 50% 0%, rgba(76,255,145,0.15), transparent 70%); }
+  .home-card.links::before  { background: radial-gradient(circle at 50% 0%, rgba(255,215,0,0.15), transparent 70%); }
+
+  .home-card:hover { transform: translateY(-6px); }
+  .home-card.games:hover  { border-color: var(--accent);  box-shadow: 0 16px 40px rgba(124,77,255,0.25); }
+  .home-card.chat:hover   { border-color: var(--accent2); box-shadow: 0 16px 40px rgba(0,229,255,0.2); }
+  .home-card.work:hover   { border-color: #4cff91;        box-shadow: 0 16px 40px rgba(76,255,145,0.2); }
+  .home-card.links:hover  { border-color: #ffd700;        box-shadow: 0 16px 40px rgba(255,215,0,0.2); }
+  .home-card:hover::before { opacity: 1; }
+
+  .home-card-icon { font-size: 3rem; line-height: 1; }
+  .home-card-title { font-size: 1.2rem; font-weight: 800; }
+  .home-card-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+
+  @media (max-width: 500px) {
+    .home-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .home-card { padding: 24px 16px; gap: 10px; }
+    .home-card-icon { font-size: 2.2rem; }
+    .home-card-title { font-size: 1rem; }
+    .home-card-desc { display: none; }
+  }
+
   /* ── Sections ── */
   .app-section { display: none; }
   .app-section.active { display: block; }
@@ -817,9 +881,10 @@
   </div>
   <div class="filters" id="filters"></div>
   <div class="nav-links-left">
-    <button class="tab-btn active" data-tab="games" onclick="navigateTo('games')">🎮 Games</button>
-    <button class="tab-btn" data-tab="chat" onclick="navigateTo('chat')">💬 Chat</button>
-    <button class="tab-btn" data-tab="notes" onclick="navigateTo('notes')">📚 Notes</button>
+    <button class="tab-btn active" data-tab="home"  onclick="navigateTo('home')">🏠 Home</button>
+    <button class="tab-btn" data-tab="games" onclick="navigateTo('games')">🎮 Games</button>
+    <button class="tab-btn" data-tab="chat"  onclick="navigateTo('chat')">💬 Chat</button>
+    <button class="tab-btn" data-tab="notes" onclick="navigateTo('notes')">📚 Work</button>
     <button class="tab-btn" data-tab="links" onclick="navigateTo('links')">🔗 Links</button>
   </div>
   <button class="auth-btn" id="auth-btn">👤 Login</button>
@@ -864,7 +929,36 @@
   </div>
 </div>
 
-<div class="app-section active" id="section-games">
+<div id="section-home">
+  <div class="home-screen">
+    <div class="home-title">🎮 Arcade Hub</div>
+    <div class="home-sub">What do you want to do?</div>
+    <div class="home-grid">
+      <div class="home-card games" onclick="navigateTo('games')">
+        <div class="home-card-icon">🎮</div>
+        <div class="home-card-title">Games</div>
+        <div class="home-card-desc">300+ free browser games, no download needed</div>
+      </div>
+      <div class="home-card chat" onclick="navigateTo('chat')">
+        <div class="home-card-icon">💬</div>
+        <div class="home-card-title">Chat</div>
+        <div class="home-card-desc">Public rooms and private messages</div>
+      </div>
+      <div class="home-card work" onclick="navigateTo('notes')">
+        <div class="home-card-icon">📚</div>
+        <div class="home-card-title">Work</div>
+        <div class="home-card-desc">Notes and study resources</div>
+      </div>
+      <div class="home-card links" onclick="navigateTo('links')">
+        <div class="home-card-icon">🔗</div>
+        <div class="home-card-title">Links</div>
+        <div class="home-card-desc">Create and manage short links</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-section" id="section-games">
 <div class="page-layout">
 
   <aside class="ad-sidebar">
@@ -1626,17 +1720,21 @@ const iframeCache = {};
 function navigateTo(tab) {
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
 
+  // Show/hide all sections
+  document.getElementById("section-home").style.display  = tab === "home"  ? "" : "none";
   document.getElementById("section-games").style.display = tab === "games" ? "" : "none";
   ["chat", "notes", "links"].forEach(t => {
     document.getElementById(`section-${t}`).style.display = t === tab ? "block" : "none";
   });
 
+  // Hide arcade header elements unless on games tab
   const searchBar = document.querySelector(".search-bar");
   const filters   = document.getElementById("filters");
   if (searchBar) searchBar.style.display = tab === "games" ? "" : "none";
   if (filters)   filters.style.display   = tab === "games" ? "" : "none";
 
-  if (tab !== "games" && !iframeCache[tab]) {
+  // Lazy-create iframes
+  if (!["home","games"].includes(tab) && !iframeCache[tab]) {
     const iframe = document.createElement("iframe");
     iframe.src = TAB_SRCS[tab];
     iframe.allow = "fullscreen";
@@ -1645,11 +1743,13 @@ function navigateTo(tab) {
     iframeCache[tab] = true;
   }
 
-  history.replaceState(null, "", tab === "games" ? "/" : `/#${tab}`);
+  history.replaceState(null, "", tab === "home" ? "/" : `/#${tab}`);
 }
 
+// Restore from hash, default to home
 const initTab = location.hash.slice(1);
-if (["chat", "notes", "links"].includes(initTab)) navigateTo(initTab);
+if (["games","chat","notes","links"].includes(initTab)) navigateTo(initTab);
+else navigateTo("home");
 
 // ── Supabase Auth & Cloud Sync ──
 const SB_URL = "https://jemkakaywibgiryukgxo.supabase.co";
