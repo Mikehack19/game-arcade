@@ -817,10 +817,10 @@
   </div>
   <div class="filters" id="filters"></div>
   <div class="nav-links-left">
-    <button class="tab-btn active" data-tab="games" onclick="switchTab('games')">🎮 Games</button>
-    <button class="tab-btn" data-tab="chat" onclick="switchTab('chat')">💬 Chat</button>
-    <button class="tab-btn" data-tab="notes" onclick="switchTab('notes')">📚 Notes</button>
-    <button class="tab-btn" data-tab="links" onclick="switchTab('links')">🔗 Links</button>
+    <button class="tab-btn active" data-tab="games" onclick="navigateTo('games')">🎮 Games</button>
+    <button class="tab-btn" data-tab="chat" onclick="navigateTo('chat')">💬 Chat</button>
+    <button class="tab-btn" data-tab="notes" onclick="navigateTo('notes')">📚 Notes</button>
+    <button class="tab-btn" data-tab="links" onclick="navigateTo('links')">🔗 Links</button>
   </div>
   <button class="auth-btn" id="auth-btn">👤 Login</button>
   <div class="user-btn" id="user-btn">
@@ -1623,22 +1623,19 @@ renderFeatured();
 const TAB_SRCS = { chat: "/chat.html", notes: "/homework.html", links: "/go.html" };
 const iframeCache = {};
 
-function switchTab(tab) {
+function navigateTo(tab) {
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
 
-  // Show/hide sections via inline style (reliable, no CSS specificity issues)
   document.getElementById("section-games").style.display = tab === "games" ? "" : "none";
   ["chat", "notes", "links"].forEach(t => {
     document.getElementById(`section-${t}`).style.display = t === tab ? "block" : "none";
   });
 
-  // Hide arcade-specific header elements when not on games tab
   const searchBar = document.querySelector(".search-bar");
   const filters   = document.getElementById("filters");
   if (searchBar) searchBar.style.display = tab === "games" ? "" : "none";
   if (filters)   filters.style.display   = tab === "games" ? "" : "none";
 
-  // Lazy-create iframe on first visit
   if (tab !== "games" && !iframeCache[tab]) {
     const iframe = document.createElement("iframe");
     iframe.src = TAB_SRCS[tab];
@@ -1651,9 +1648,8 @@ function switchTab(tab) {
   history.replaceState(null, "", tab === "games" ? "/" : `/#${tab}`);
 }
 
-// Restore tab from URL hash on load
 const initTab = location.hash.slice(1);
-if (["chat", "notes", "links"].includes(initTab)) switchTab(initTab);
+if (["chat", "notes", "links"].includes(initTab)) navigateTo(initTab);
 
 // ── Supabase Auth & Cloud Sync ──
 const SB_URL = "https://jemkakaywibgiryukgxo.supabase.co";
