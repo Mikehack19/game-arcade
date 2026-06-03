@@ -243,6 +243,23 @@
   body.light .ad-slot,
   body.light .ad-banner-mobile { background: #e8e8f8; border-color: #aaaacc; }
 
+  .chat-btn {
+    position: absolute;
+    left: 16px; top: 50%;
+    transform: translateY(-50%);
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    color: #fff;
+    text-decoration: none;
+    padding: 7px 16px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+  }
+
+  .chat-btn:hover { opacity: 0.85; }
+
   .theme-btn {
     position: absolute;
     right: 16px; top: 50%;
@@ -634,6 +651,7 @@
     <input type="text" id="search" placeholder="Search games... (or press /)" autocomplete="off" />
   </div>
   <div class="filters" id="filters"></div>
+  <a class="chat-btn" id="chat-btn" href="https://YOUR-CHAT-URL.netlify.app" target="_blank" rel="noopener">💬 Chat</a>
   <button class="theme-btn" id="theme-btn" title="Toggle light/dark mode">🌙</button>
 </header>
 
