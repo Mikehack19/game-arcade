@@ -1,0 +1,7 @@
+[build]
+  publish = "."
+
+[[redirects]]
+  from = "/chat/*"
+  to = "/chat/index.html"
+  status = 200
