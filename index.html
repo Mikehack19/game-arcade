@@ -1721,8 +1721,8 @@ function navigateTo(tab) {
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
 
   // Show/hide all sections
-  document.getElementById("section-home").style.display  = tab === "home"  ? "" : "none";
-  document.getElementById("section-games").style.display = tab === "games" ? "" : "none";
+  document.getElementById("section-home").style.display  = tab === "home"  ? "block" : "none";
+  document.getElementById("section-games").style.display = tab === "games" ? "block" : "none";
   ["chat", "notes", "links"].forEach(t => {
     document.getElementById(`section-${t}`).style.display = t === tab ? "block" : "none";
   });
@@ -1730,8 +1730,8 @@ function navigateTo(tab) {
   // Hide arcade header elements unless on games tab
   const searchBar = document.querySelector(".search-bar");
   const filters   = document.getElementById("filters");
-  if (searchBar) searchBar.style.display = tab === "games" ? "" : "none";
-  if (filters)   filters.style.display   = tab === "games" ? "" : "none";
+  if (searchBar) searchBar.style.display = tab === "games" ? "flex" : "none";
+  if (filters)   filters.style.display   = tab === "games" ? "flex" : "none";
 
   // Lazy-create iframes
   if (!["home","games"].includes(tab) && !iframeCache[tab]) {
