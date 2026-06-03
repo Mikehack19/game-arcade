@@ -3,10 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Game Arcade — 300+ Free Browser Games</title>
+<title>Game Arcade — Play Free Games</title>
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0d0d1a">
-<meta name="description" content="Play 300+ free browser games instantly. No download, no login required.">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8519551860632747" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<!-- Privacy-friendly analytics by Plausible -->
+<script async src="https://plausible.io/js/pa-gZgLLvIgIbzfbPdjNMncK.js"></script>
+<script>
+  window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+  plausible.init()
+</script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -14,11 +21,24 @@
     --bg: #0d0d1a;
     --surface: #13132a;
     --card: #1a1a35;
+    --card-hover: #22224a;
     --accent: #7c4dff;
     --accent2: #00e5ff;
     --text: #e0e0ff;
     --muted: #8888aa;
     --border: #2a2a55;
+    --cat-action: #ff4d6d;
+    --cat-platformer: #ff9a3c;
+    --cat-puzzle: #ffd700;
+    --cat-racing: #00e5ff;
+    --cat-shooting: #ff4d4d;
+    --cat-sports: #4cff91;
+    --cat-strategy: #b97cff;
+    --cat-simulation: #ff79c6;
+    --cat-horror: #ff2e63;
+    --cat-io: #00ffcc;
+    --cat-idle: #ffb347;
+    --cat-minecraft: #6dcd4f;
   }
 
   body {
@@ -28,313 +48,1684 @@
     min-height: 100vh;
   }
 
-  /* ── Nav ── */
-  nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    background: rgba(13,13,26,0.85);
-    backdrop-filter: blur(12px);
+  header {
+    background: linear-gradient(135deg, #1a0533 0%, #0d1a3a 100%);
     border-bottom: 1px solid var(--border);
-    padding: 14px 32px;
-    display: flex; align-items: center; justify-content: space-between;
+    padding: 24px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.5);
   }
 
-  .nav-logo {
-    font-size: 1.2rem; font-weight: 900;
+  .logo {
+    font-size: 2.2rem;
+    font-weight: 900;
+    letter-spacing: -1px;
     background: linear-gradient(90deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    text-decoration: none;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
-  .nav-links { display: flex; gap: 8px; align-items: center; }
+  .logo span { font-size: 1.8rem; }
 
-  .nav-link {
-    padding: 6px 14px; border-radius: 999px; text-decoration: none;
-    color: var(--muted); font-size: 0.85rem; font-weight: 600;
+  .search-bar {
+    width: 100%;
+    max-width: 520px;
+    position: relative;
+  }
+
+  .search-bar input {
+    width: 100%;
+    padding: 12px 20px 12px 44px;
+    border-radius: 999px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-bar input:focus { border-color: var(--accent); }
+  .search-bar input::placeholder { color: var(--muted); }
+
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 1.1rem;
+  }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    max-width: 900px;
+  }
+
+  .filter-btn {
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+  .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  .stats {
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  main {
+    padding: 16px 24px 48px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+    margin-top: 4px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    cursor: pointer;
+    color: inherit;
+    transition: all 0.18s;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card:hover {
+    border-color: var(--accent);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(124,77,255,0.25);
+  }
+
+  .card.kb-focused {
+    border-color: var(--accent2);
+    box-shadow: 0 0 0 3px rgba(0,229,255,0.3);
+    transform: translateY(-3px);
+  }
+
+  .card-thumb {
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .card-info {
+    padding: 10px 12px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .card-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.3;
+    color: var(--text);
+  }
+
+  .cat-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 3px 9px;
+    border-radius: 999px;
+    opacity: 0.85;
+  }
+
+  .cat-action   { background: var(--cat-action);   color: #000; }
+  .cat-platformer { background: var(--cat-platformer); color: #000; }
+  .cat-puzzle   { background: var(--cat-puzzle);   color: #000; }
+  .cat-racing   { background: var(--cat-racing);   color: #000; }
+  .cat-shooting { background: var(--cat-shooting); color: #fff; }
+  .cat-sports   { background: var(--cat-sports);   color: #000; }
+  .cat-strategy { background: var(--cat-strategy); color: #000; }
+  .cat-simulation { background: var(--cat-simulation); color: #000; }
+  .cat-horror   { background: var(--cat-horror);   color: #fff; }
+  .cat-io       { background: var(--cat-io);       color: #000; }
+  .cat-idle     { background: var(--cat-idle);     color: #000; }
+  .cat-minecraft { background: var(--cat-minecraft); color: #000; }
+
+  .empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--muted);
+    padding: 60px 0;
+    font-size: 1.1rem;
+  }
+
+  /* ── Light mode ── */
+  body.light {
+    --bg: #f2f2ff;
+    --surface: #e8e8f8;
+    --card: #ffffff;
+    --card-hover: #ededff;
+    --text: #1a1a35;
+    --muted: #5555aa;
+    --border: #ccccee;
+  }
+
+  body.light header {
+    background: linear-gradient(135deg, #d8b4fe 0%, #a5f3fc 100%);
+  }
+
+  body.light .ad-slot,
+  body.light .ad-banner-mobile { background: #e8e8f8; border-color: #aaaacc; }
+
+  .nav-links-left {
+    position: absolute;
+    left: 16px; top: 50%;
+    transform: translateY(-50%);
+    display: flex; gap: 6px; align-items: center;
+  }
+
+  .chat-btn {
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    color: #fff;
+    text-decoration: none;
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+  }
+
+  .chat-btn:hover { opacity: 0.85; }
+
+  .nav-link-small {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .nav-link-small:hover { color: var(--text); border-color: var(--accent); }
+
+  .theme-btn {
+    position: absolute;
+    right: 16px; top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #fff;
+    border-radius: 50%;
+    width: 38px; height: 38px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    line-height: 1;
+  }
+
+  body.light .theme-btn { background: rgba(0,0,0,0.1); border-color: rgba(0,0,0,0.2); color: #333; }
+  .theme-btn:hover { background: rgba(255,255,255,0.3); }
+
+  /* ── Featured section ── */
+  .featured-wrap { padding: 16px 24px 0; }
+
+  .featured-row {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .featured-card {
+    flex-shrink: 0;
+    width: 130px;
+    background: var(--card);
+    border: 2px solid var(--accent);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .featured-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(124,77,255,0.35);
+    border-color: var(--accent2);
+  }
+
+  .featured-badge {
+    position: absolute;
+    top: 6px; left: 6px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    z-index: 1;
+  }
+
+  .featured-card .card-thumb { height: 80px; font-size: 2.4rem; }
+  .featured-card .card-info  { padding: 7px 8px 9px; }
+  .featured-card .card-name  { font-size: 0.78rem; }
+
+  /* ── Modal overlay */
+  .modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: #000;
+    flex-direction: column;
+  }
+
+  .modal.open { display: flex; }
+
+  .modal-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    background: #111;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .modal-title {
+    flex: 1;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .modal-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+
+  .modal-btn:hover { background: var(--card-hover); }
+  .modal-btn.close-btn { background: #3a0000; border-color: #700; }
+  .modal-btn.close-btn:hover { background: #5a0000; }
+
+  .modal-btn.fullscreen-btn { background: #001a3a; border-color: #007; }
+  .modal-btn.fullscreen-btn:hover { background: #002a5a; }
+
+  .modal-frame-wrap {
+    flex: 1;
+    position: relative;
+    background: #000;
+  }
+
+  .modal-frame-wrap iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  .modal-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    background: #000;
+    color: var(--muted);
+    font-size: 1rem;
+    transition: opacity 0.3s;
+  }
+
+  .modal-loading.hidden { opacity: 0; pointer-events: none; }
+
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .progress-bar-wrap {
+    width: 220px;
+    height: 6px;
+    background: var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+    display: none;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 999px;
+    width: 0%;
+    transition: width 0.2s;
+  }
+
+  .loading-label {
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+
+  .open-tab-btn {
+    margin-top: 4px;
+    padding: 8px 18px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: none;
+  }
+
+  .open-tab-btn:hover { background: #6a3de8; }
+
+  /* ── Page layout ── */
+  .page-layout {
+    display: grid;
+    grid-template-columns: 180px 1fr 180px;
+    max-width: 1800px;
+    margin: 0 auto;
+    align-items: start;
+  }
+
+  .page-center { min-width: 0; }
+
+  /* ── Ad sidebars ── */
+  .ad-sidebar {
+    padding: 20px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: sticky;
+    top: 130px;
+  }
+
+  .ad-slot {
+    background: #0e0e20;
+    border: 1.5px dashed #33335a;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: #44446a;
+  }
+
+  .ad-slot-rect { width: 160px; height: 160px; }
+  .ad-slot-sky  { width: 160px; height: 420px; }
+  .ad-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; }
+  .ad-icon  { font-size: 1.4rem; opacity: 0.3; }
+
+  .ad-banner-mobile {
+    display: none;
+    background: #0e0e20;
+    border: 1.5px dashed #33335a;
+    border-radius: 10px;
+    height: 80px;
+    margin: 12px 16px;
+    align-items: center;
+    justify-content: center;
+    color: #44446a;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    gap: 8px;
+  }
+
+  /* ── Stats bar + sort ── */
+  .stats-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px 0;
+  }
+
+  .sort-select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 0.82rem;
+    padding: 5px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    outline: none;
+  }
+
+  /* ── Recently played ── */
+  .recently-played-wrap { padding: 16px 24px 0; }
+
+  .section-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+
+  .recently-played {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .recent-card {
+    flex-shrink: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    min-width: 110px;
     transition: all 0.15s;
   }
 
-  .nav-link:hover { color: var(--text); background: var(--surface); }
+  .recent-card:hover { border-color: var(--accent); background: var(--card-hover); }
+  .recent-card .card-name { font-size: 0.76rem; }
 
-  .nav-cta {
-    padding: 7px 18px; border-radius: 999px;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    color: #fff; font-size: 0.85rem; font-weight: 700;
-    text-decoration: none; transition: opacity 0.15s;
-  }
-
-  .nav-cta:hover { opacity: 0.85; }
-
-  /* ── Hero ── */
-  .hero {
-    min-height: 100vh;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    text-align: center; padding: 100px 24px 60px;
-    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124,77,255,0.15) 0%, transparent 70%);
-    position: relative; overflow: hidden;
-  }
-
-  .hero::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: radial-gradient(ellipse 50% 40% at 80% 80%, rgba(0,229,255,0.08) 0%, transparent 60%);
+  /* ── Play overlay (inside .card-thumb) ── */
+  .play-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(80,30,180,0.82);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.18s;
     pointer-events: none;
   }
 
-  .hero-badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: rgba(124,77,255,0.15); border: 1px solid rgba(124,77,255,0.3);
-    border-radius: 999px; padding: 5px 14px;
-    font-size: 0.78rem; font-weight: 600; color: #b09eff;
-    margin-bottom: 28px; letter-spacing: 0.04em;
+  .card:hover .play-overlay { opacity: 1; }
+
+  /* ── Favorites button ── */
+  .fav-btn {
+    position: absolute;
+    top: 6px; right: 6px;
+    background: rgba(0,0,0,0.45);
+    border: none;
+    font-size: 0.95rem;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s, transform 0.1s;
+    line-height: 1;
+    padding: 3px 5px;
+    border-radius: 6px;
+    z-index: 3;
   }
 
-  .hero h1 {
-    font-size: clamp(2.8rem, 8vw, 5.5rem);
-    font-weight: 900; line-height: 1.05; letter-spacing: -2px;
-    margin-bottom: 20px;
-    background: linear-gradient(135deg, #fff 30%, var(--accent2) 70%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  .card:hover .fav-btn { opacity: 1; }
+  .card.favorited .fav-btn { opacity: 1; }
+  .fav-btn:hover { transform: scale(1.2); }
+
+  /* ── Rating buttons ── */
+  .rating-bar {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    margin-top: 2px;
   }
 
-  .hero p {
-    font-size: clamp(1rem, 2.5vw, 1.3rem);
-    color: var(--muted); max-width: 560px; line-height: 1.6; margin-bottom: 40px;
+  .rate-btn {
+    background: none;
+    border: none;
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+    opacity: 0.5;
+    transition: opacity 0.15s, transform 0.1s;
+    line-height: 1;
   }
 
-  .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .rate-btn:hover { opacity: 1; transform: scale(1.2); }
+  .rate-btn.active { opacity: 1; }
+  .rate-count { font-size: 0.68rem; color: var(--muted); min-width: 14px; text-align: center; }
 
-  .btn-primary {
-    padding: 14px 32px; border-radius: 999px;
+  /* ── Auth ── */
+  .auth-btn {
+    position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); padding: 6px 14px; border-radius: 999px;
+    font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .auth-btn:hover { border-color: var(--accent); }
+
+  .user-btn {
+    position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); padding: 5px 12px 5px 6px; border-radius: 999px;
+    font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.15s;
+    display: none; align-items: center; gap: 7px;
+  }
+  .user-btn:hover { border-color: var(--accent); }
+  .user-avatar {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 700; color: #fff;
+  }
+  .user-dropdown {
+    position: absolute; left: 16px; top: calc(50% + 22px);
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 8px; min-width: 160px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4); z-index: 200; display: none;
+  }
+  .user-dropdown.open { display: block; }
+  .dropdown-item {
+    display: block; width: 100%; padding: 8px 12px; border-radius: 8px;
+    text-align: left; background: none; border: none; color: var(--text);
+    font-size: 0.85rem; cursor: pointer; text-decoration: none; transition: background 0.1s;
+  }
+  .dropdown-item:hover { background: var(--card-hover); }
+  .dropdown-item.danger { color: #ff6b6b; }
+  .dropdown-divider { border: none; border-top: 1px solid var(--border); margin: 4px 0; }
+
+  /* Auth modal */
+  .auth-overlay {
+    display: none; position: fixed; inset: 0; z-index: 500;
+    background: rgba(0,0,0,0.7); align-items: center; justify-content: center;
+  }
+  .auth-overlay.open { display: flex; }
+  .auth-box {
+    background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+    padding: 32px; width: 100%; max-width: 380px; position: relative;
+  }
+  .auth-close {
+    position: absolute; top: 16px; right: 16px; background: none; border: none;
+    color: var(--muted); font-size: 1.1rem; cursor: pointer;
+  }
+  .auth-tabs { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
+  .auth-tab {
+    flex: 1; padding: 10px; background: none; border: none; color: var(--muted);
+    font-size: 0.9rem; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent;
+    transition: all 0.15s; margin-bottom: -1px;
+  }
+  .auth-tab.active { color: var(--text); border-bottom-color: var(--accent); }
+  .auth-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 6px; }
+  .auth-sub { font-size: 0.82rem; color: var(--muted); margin-bottom: 22px; }
+  .auth-field { margin-bottom: 14px; }
+  .auth-field label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .auth-field input {
+    width: 100%; padding: 10px 14px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 8px; color: var(--text);
+    font-size: 0.9rem; outline: none; transition: border-color 0.15s;
+  }
+  .auth-field input:focus { border-color: var(--accent); }
+  .auth-submit {
+    width: 100%; padding: 11px; margin-top: 6px;
     background: linear-gradient(90deg, var(--accent), var(--accent2));
-    color: #fff; font-size: 1rem; font-weight: 700;
-    text-decoration: none; transition: all 0.15s;
-    box-shadow: 0 4px 20px rgba(124,77,255,0.4);
+    color: #fff; border: none; border-radius: 8px; font-size: 0.95rem;
+    font-weight: 700; cursor: pointer; transition: opacity 0.15s;
+  }
+  .auth-submit:hover { opacity: 0.88; }
+  .auth-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  .auth-error { color: #ff6b6b; font-size: 0.82rem; margin-top: 10px; min-height: 18px; }
+  .auth-success { color: #4cff91; font-size: 0.82rem; margin-top: 10px; min-height: 18px; }
+  .sync-badge {
+    position: absolute; top: 6px; right: 48px;
+    background: #4cff91; color: #000; font-size: 0.65rem; font-weight: 700;
+    padding: 2px 7px; border-radius: 999px; display: none;
   }
 
-  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(124,77,255,0.5); }
-
-  .btn-secondary {
-    padding: 14px 32px; border-radius: 999px;
-    background: transparent; border: 1.5px solid var(--border);
-    color: var(--text); font-size: 1rem; font-weight: 700;
-    text-decoration: none; transition: all 0.15s;
-  }
-
-  .btn-secondary:hover { border-color: var(--accent); background: rgba(124,77,255,0.08); }
-
-  .hero-stats {
-    display: flex; gap: 40px; margin-top: 64px;
-    flex-wrap: wrap; justify-content: center;
-  }
-
-  .hero-stat { text-align: center; }
-  .hero-stat-num { font-size: 2rem; font-weight: 900; background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-  .hero-stat-label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
-
-  /* ── Features ── */
-  .features {
-    padding: 80px 32px;
-    max-width: 1100px; margin: 0 auto;
-  }
-
-  .section-label {
-    text-align: center; font-size: 0.78rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.12em;
-    color: var(--accent); margin-bottom: 14px;
-  }
-
-  .section-title {
-    text-align: center; font-size: clamp(1.6rem, 4vw, 2.4rem);
-    font-weight: 900; margin-bottom: 48px; letter-spacing: -0.5px;
-  }
-
-  .features-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 20px;
-  }
-
-  .feature-card {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 16px; padding: 28px 24px;
-    text-decoration: none; color: inherit;
-    transition: all 0.18s; position: relative; overflow: hidden;
-  }
-
-  .feature-card::before {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(135deg, transparent 60%, rgba(124,77,255,0.06));
-    pointer-events: none;
-  }
-
-  .feature-card:hover {
-    border-color: var(--accent); transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(124,77,255,0.2);
-  }
-
-  .feature-icon { font-size: 2.2rem; margin-bottom: 14px; display: block; }
-  .feature-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 8px; }
-  .feature-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
-  .feature-tag {
-    display: inline-block; margin-top: 14px;
-    background: rgba(124,77,255,0.15); color: #b09eff;
-    font-size: 0.72rem; font-weight: 700; padding: 3px 10px;
-    border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em;
-  }
-
-  /* ── Games preview ── */
-  .games-preview {
-    background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
-    padding: 80px 32px; overflow: hidden;
-  }
-
-  .games-preview-inner { max-width: 1100px; margin: 0 auto; }
-
-  .categories-scroll {
-    display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 36px;
-  }
-
-  .cat-pill {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 999px; padding: 8px 18px;
-    font-size: 0.85rem; font-weight: 600; color: var(--muted);
-    text-decoration: none; transition: all 0.15s;
-  }
-
-  .cat-pill:hover { border-color: var(--accent); color: var(--text); }
-
-  /* ── CTA ── */
-  .cta-section {
-    padding: 100px 32px; text-align: center;
-    background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(124,77,255,0.1) 0%, transparent 70%);
-  }
-
-  .cta-section h2 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 900; margin-bottom: 16px; letter-spacing: -0.5px; }
-  .cta-section p { color: var(--muted); font-size: 1.05rem; margin-bottom: 36px; }
+  /* ── Share button ── */
+  .modal-btn.share-btn { background: #003828; border-color: #006848; }
+  .modal-btn.share-btn:hover { background: #004838; }
 
   /* ── Footer ── */
   footer {
-    background: var(--surface); border-top: 1px solid var(--border);
-    padding: 28px 32px;
-    display: flex; align-items: center; justify-content: space-between;
-    flex-wrap: wrap; gap: 12px;
-    color: var(--muted); font-size: 0.82rem;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-top: 24px;
   }
 
   footer a { color: var(--accent2); text-decoration: none; }
   footer a:hover { text-decoration: underline; }
-  .footer-links { display: flex; gap: 20px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .page-layout { grid-template-columns: 1fr; }
+    .ad-sidebar { display: none; }
+    .ad-banner-mobile { display: flex; }
+  }
 
   @media (max-width: 600px) {
-    nav { padding: 12px 16px; }
-    .nav-links { gap: 4px; }
-    .nav-link { padding: 5px 10px; font-size: 0.78rem; }
-    .features { padding: 60px 16px; }
-    footer { flex-direction: column; align-items: center; text-align: center; }
+    header { padding: 16px; }
+    main { padding: 12px 10px 40px; }
+    .grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+    .logo { font-size: 1.6rem; }
+    .stats-bar { padding: 10px 12px 0; }
+    .recently-played-wrap { padding: 12px 12px 0; }
   }
 </style>
 </head>
 <body>
 
-<nav>
-  <a class="nav-logo" href="/">🎮 Arcade</a>
-  <div class="nav-links">
-    <a class="nav-link" href="/chat.html">💬 Chat</a>
-    <a class="nav-link" href="/homework.html">📚 Notes</a>
-    <a class="nav-link" href="/go.html">🔗 Links</a>
-    <a class="nav-link" href="/admin.html">⚙️ Admin</a>
-    <a class="nav-cta" href="/arcade.html">Play Games →</a>
+<header>
+  <div class="logo"><span>🎮</span> Game Arcade</div>
+  <div class="search-bar">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="search" placeholder="Search games... (or press /)" autocomplete="off" />
   </div>
-</nav>
+  <div class="filters" id="filters"></div>
+  <div class="nav-links-left">
+    <a class="chat-btn" href="/chat.html">💬 Chat</a>
+    <a class="nav-link-small" href="/homework.html">📚 Notes</a>
+    <a class="nav-link-small" href="/go.html">🔗 Links</a>
+  </div>
+  <button class="auth-btn" id="auth-btn">👤 Login</button>
+  <div class="user-btn" id="user-btn">
+    <div class="user-avatar" id="user-avatar">?</div>
+    <span id="user-name">User</span>
+  </div>
+  <div class="user-dropdown" id="user-dropdown">
+    <a class="dropdown-item" href="/admin.html">⚙️ Admin Dashboard</a>
+    <hr class="dropdown-divider">
+    <button class="dropdown-item danger" id="signout-btn">🚪 Sign Out</button>
+  </div>
+  <span class="sync-badge" id="sync-badge">☁️ Synced</span>
+  <button class="theme-btn" id="theme-btn" title="Toggle light/dark mode">🌙</button>
+</header>
 
-<!-- Hero -->
-<section class="hero">
-  <div class="hero-badge">✨ 300+ Games — No Download Required</div>
-  <h1>The Ultimate<br>Browser Arcade</h1>
-  <p>Play hundreds of free games instantly in your browser. No signup, no install — just click and play.</p>
-  <div class="hero-btns">
-    <a class="btn-primary" href="/arcade.html">🎮 Browse All Games</a>
-    <a class="btn-secondary" href="/homework.html">📚 Study Hub</a>
-  </div>
-  <div class="hero-stats">
-    <div class="hero-stat"><div class="hero-stat-num">300+</div><div class="hero-stat-label">Free Games</div></div>
-    <div class="hero-stat"><div class="hero-stat-num">12</div><div class="hero-stat-label">Categories</div></div>
-    <div class="hero-stat"><div class="hero-stat-num">100%</div><div class="hero-stat-label">Free to Play</div></div>
-    <div class="hero-stat"><div class="hero-stat-num">0</div><div class="hero-stat-label">Downloads</div></div>
-  </div>
-</section>
-
-<!-- Features -->
-<section class="features">
-  <div class="section-label">Everything in one place</div>
-  <h2 class="section-title">More than just games</h2>
-  <div class="features-grid">
-    <a class="feature-card" href="/arcade.html">
-      <span class="feature-icon">🎮</span>
-      <div class="feature-title">Game Arcade</div>
-      <div class="feature-desc">300+ classic and modern browser games across 12 categories. Featured picks, favorites, and recently played.</div>
-      <span class="feature-tag">300+ Games</span>
-    </a>
-    <a class="feature-card" href="/homework.html">
-      <span class="feature-icon">📚</span>
-      <div class="feature-title">Study Hub</div>
-      <div class="feature-desc">Organized notes and study resources for every subject. Looks like a legit school site.</div>
-      <span class="feature-tag">6 Subjects</span>
-    </a>
-    <a class="feature-card" href="/go.html">
-      <span class="feature-icon">🔗</span>
-      <div class="feature-title">Link Shortener</div>
-      <div class="feature-desc">Create short links for any URL. Share disguised links that redirect anywhere you want.</div>
-      <span class="feature-tag">Instant</span>
-    </a>
-    <a class="feature-card" href="/admin.html">
-      <span class="feature-icon">⚙️</span>
-      <div class="feature-title">Admin Dashboard</div>
-      <div class="feature-desc">Track which games are most played, view ratings analytics, manage users and short links.</div>
-      <span class="feature-tag">Admin Only</span>
-    </a>
-  </div>
-</section>
-
-<!-- Game categories preview -->
-<section class="games-preview">
-  <div class="games-preview-inner">
-    <div class="section-label">Browse by category</div>
-    <h2 class="section-title">Find your type of game</h2>
-    <div class="categories-scroll">
-      <a class="cat-pill" href="/arcade.html">🎮 All Games (300+)</a>
-      <a class="cat-pill" href="/arcade.html">🧩 Puzzle (61)</a>
-      <a class="cat-pill" href="/arcade.html">🏃 Platformer (48)</a>
-      <a class="cat-pill" href="/arcade.html">🏎️ Racing (43)</a>
-      <a class="cat-pill" href="/arcade.html">⚔️ Action (36)</a>
-      <a class="cat-pill" href="/arcade.html">⚽ Sports (26)</a>
-      <a class="cat-pill" href="/arcade.html">🎭 Simulation (24)</a>
-      <a class="cat-pill" href="/arcade.html">🔫 Shooting (20)</a>
-      <a class="cat-pill" href="/arcade.html">🏰 Strategy (9)</a>
-      <a class="cat-pill" href="/arcade.html">👻 Horror (8)</a>
-      <a class="cat-pill" href="/arcade.html">🌐 .io Games (8)</a>
-      <a class="cat-pill" href="/arcade.html">💰 Idle (7)</a>
-      <a class="cat-pill" href="/arcade.html">⛏️ Minecraft (5)</a>
+<div class="auth-overlay" id="auth-overlay">
+  <div class="auth-box">
+    <button class="auth-close" id="auth-close">✕</button>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Login</button>
+      <button class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
+    </div>
+    <div id="auth-login-panel">
+      <div class="auth-title">Welcome back</div>
+      <div class="auth-sub">Sign in to sync your favorites &amp; ratings</div>
+      <div class="auth-field"><label>Email</label><input type="email" id="login-email" placeholder="you@example.com" /></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="login-password" placeholder="••••••••" /></div>
+      <button class="auth-submit" id="login-btn" onclick="handleLogin()">Sign In</button>
+      <div class="auth-error" id="login-error"></div>
+    </div>
+    <div id="auth-signup-panel" style="display:none">
+      <div class="auth-title">Create account</div>
+      <div class="auth-sub">Join to save favorites and track your games</div>
+      <div class="auth-field"><label>Username</label><input type="text" id="signup-username" placeholder="coolplayer123" /></div>
+      <div class="auth-field"><label>Email</label><input type="email" id="signup-email" placeholder="you@example.com" /></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="signup-password" placeholder="min 6 characters" /></div>
+      <button class="auth-submit" id="signup-btn" onclick="handleSignup()">Create Account</button>
+      <div class="auth-error" id="signup-error"></div>
+      <div class="auth-success" id="signup-success"></div>
     </div>
   </div>
-</section>
+</div>
 
-<!-- CTA -->
-<section class="cta-section">
-  <h2>Ready to play?</h2>
-  <p>300+ games waiting — no signup required</p>
-  <a class="btn-primary" href="/arcade.html">Start Playing Now →</a>
-</section>
+<div class="page-layout">
+
+  <aside class="ad-sidebar">
+    <div class="ad-slot ad-slot-rect">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-8519551860632747" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+    <div class="ad-slot ad-slot-sky">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-8519551860632747" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+  </aside>
+
+  <div class="page-center">
+    <div class="ad-banner-mobile">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-8519551860632747" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+
+    <div class="stats-bar">
+      <p class="stats" id="stats"></p>
+      <select class="sort-select" id="sort-select">
+        <option value="default">Sort: Default</option>
+        <option value="az">Sort: A–Z</option>
+        <option value="za">Sort: Z–A</option>
+        <option value="top">Sort: Top Rated</option>
+      </select>
+    </div>
+
+    <div class="featured-wrap" id="featured-wrap">
+      <div class="section-title">⭐ Featured Games</div>
+      <div class="featured-row" id="featured-row"></div>
+    </div>
+
+    <div class="recently-played-wrap" id="recently-played-wrap" style="display:none">
+      <div class="section-title">🕹️ Recently Played</div>
+      <div class="recently-played" id="recently-played"></div>
+    </div>
+
+    <main>
+      <div class="grid" id="grid"></div>
+    </main>
+  </div>
+
+  <aside class="ad-sidebar">
+    <div class="ad-slot ad-slot-rect">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-8519551860632747" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+    <div class="ad-slot ad-slot-sky">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-8519551860632747" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+  </aside>
+
+</div>
 
 <footer>
-  <span>🎮 Game Arcade &mdash; Free browser games</span>
-  <div class="footer-links">
-    <a href="/arcade.html">Games</a>
-    <a href="/homework.html">Notes</a>
-    <a href="/go.html">Links</a>
-    <a href="/admin.html">Admin</a>
-  </div>
+  <span>🎮 Game Arcade &mdash; 300+ free games</span>
+  <a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack" target="_blank" rel="noopener">Games Source ↗</a>
 </footer>
 
+<div class="modal" id="modal">
+  <div class="modal-bar">
+    <button class="modal-btn close-btn" onclick="closeGame()">✕ Back</button>
+    <div class="modal-title" id="modal-title"></div>
+    <button class="modal-btn share-btn" id="share-btn">🔗 Share</button>
+    <button class="modal-btn fullscreen-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+  </div>
+  <div class="modal-frame-wrap" id="modal-frame-wrap">
+    <div class="modal-loading" id="modal-loading">
+      <div class="spinner" id="modal-spinner"></div>
+      <div class="loading-label" id="loading-label">Loading game…</div>
+      <button class="open-tab-btn" id="open-tab-btn">Open in New Tab Instead</button>
+    </div>
+    <iframe id="game-frame" allowfullscreen></iframe>
+  </div>
+</div>
+
+<script>
+const GAMES = [
+  { name: "Minecraft 1.12", cat: "minecraft", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/1.12.html" },
+  { name: "Minecraft 1.5", cat: "minecraft", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/1.5.html" },
+  { name: "Minecraft 1.8", cat: "minecraft", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/1.8.html" },
+  { name: "10 Minutes Till Dawn", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/10minutestilldawn.html" },
+  { name: "12 Mini Battles", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/12minibattles.html" },
+  { name: "1 on 1 Soccer", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/1on1soccer.html" },
+  { name: "1 on 1 Tennis", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/1on1tennis.html" },
+  { name: "1v1.lol", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/1v1.lol.html" },
+  { name: "2048", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/2048.html" },
+  { name: "2048 Cupcakes", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/2048cupcakes.html" },
+  { name: "3D Flight Simulator", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/3Dflightsimulator.html" },
+  { name: "8 Ball Classic", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/8ballclassic.html" },
+  { name: "Minecraft Alpha 1.2.6", cat: "minecraft", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/Alpha_1.2.6.html" },
+  { name: "Minecraft Beta 1.3", cat: "minecraft", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/Beta_1.3.html" },
+  { name: "Minecraft Indev", cat: "minecraft", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/Indev.html" },
+  { name: "Agario Lite", cat: "io", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/agariolite.html" },
+  { name: "Age of War", cat: "strategy", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ageofwar.html" },
+  { name: "Age of War 2", cat: "strategy", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ageofwar2.html" },
+  { name: "Ages of Conflict", cat: "strategy", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/agesofconflict.html" },
+  { name: "Among Us", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/amongus.html" },
+  { name: "Angry Birds", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/angrybirds.html" },
+  { name: "Angry Birds Showdown", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/angrybirdsshowdown.html" },
+  { name: "Angry Birds Space", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/angrybirdsspace.html" },
+  { name: "Awesome Tanks", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/awesometanks.html" },
+  { name: "Awesome Tanks 2", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/awesometanks2.html" },
+  { name: "Backrooms", cat: "horror", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/backrooms.html" },
+  { name: "Bacon May Die", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/baconmaydie.html" },
+  { name: "Bad Ice Cream", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/badicecream.html" },
+  { name: "Bad Ice Cream 2", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/badicecream2.html" },
+  { name: "Bad Ice Cream 3", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/badicecream3.html" },
+  { name: "Bad Parenting", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/badparenting.html" },
+  { name: "Bad Piggies", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/badpiggies.html" },
+  { name: "Baldi's Basics", cat: "horror", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/baldisbasics.html" },
+  { name: "Baseball Bros", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/baseballbros.html" },
+  { name: "Basketball Legends", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/basketballlegends.html" },
+  { name: "Basketball Stars", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/basketballstars.html" },
+  { name: "Basket Bros", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/basketbros.html" },
+  { name: "Basket Random", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/basketrandom.html" },
+  { name: "BitLife", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bitlife.html" },
+  { name: "Bit Planes", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bitplanes.htm" },
+  { name: "Blocky Snakes", cat: "io", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/blockysnakes.html" },
+  { name: "Bloons Tower Defense", cat: "strategy", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloonsTD.html" },
+  { name: "Bloons Tower Defense 2", cat: "strategy", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloonsTD2.html" },
+  { name: "Bloons Tower Defense 3", cat: "strategy", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloonsTD3.html" },
+  { name: "Bloons Tower Defense 4", cat: "strategy", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloonsTD4.html" },
+  { name: "Bloons Tower Defense 5", cat: "strategy", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloonsTD5.html" },
+  { name: "Bloxorz", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bloxorz.html" },
+  { name: "Blumgi Racers", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/blumgiracers.html" },
+  { name: "Blumgi Rocket", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/blumgirocket.html" },
+  { name: "Bob the Robber", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bobtherobber.html" },
+  { name: "Bob the Robber 2", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bobtherobber2.html" },
+  { name: "Bob the Robber 5", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bobtherobber5.html" },
+  { name: "Bouncy Motors", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bouncymotors.html" },
+  { name: "Bowmasters", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bowmasters.html" },
+  { name: "Boxing Random", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/boxingrandom.htm" },
+  { name: "Breaking the Bank", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/breakingthebank.html" },
+  { name: "Bubble Shooter", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/bubbleshooter.html" },
+  { name: "Candy Crush", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/candycrush.html" },
+  { name: "Capybara Clicker", cat: "idle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/capybaraclicker.html" },
+  { name: "Car Drawing", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cardrawing.html" },
+  { name: "Carking Arena", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/carkingarena.html" },
+  { name: "Chess", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/chess.html" },
+  { name: "Choppy Orc", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/choppyorc.html" },
+  { name: "CircloO", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/circloO.html" },
+  { name: "CircloO 2", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/circloO2.html" },
+  { name: "Clash of Vikings", cat: "strategy", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/clashofvikings.html" },
+  { name: "Cleanup.io", cat: "io", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cleanupio.html" },
+  { name: "Cluster Rush", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/clusterrush.html" },
+  { name: "Cookie Clicker", cat: "idle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cookieclicker.htm" },
+  { name: "Crazy Cars", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/crazycars.html" },
+  { name: "Crazy Cattle 3D", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/crazycattle3D.html" },
+  { name: "Crazy Crash Landing", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/crazycrashlanding.html" },
+  { name: "Crazy Motorcycle", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/crazymotorcycle.html" },
+  { name: "Crossy Road", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/crossyroad.htm" },
+  { name: "Cut the Rope", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/cuttherope.html" },
+  { name: "Dadish", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/dadish.html" },
+  { name: "Dadish 2", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/dadish2.html" },
+  { name: "Dadish 3", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/dadish3.html" },
+  { name: "Death Chase", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/deathchase.html" },
+  { name: "Death Run 3D", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/deathrun3D.html" },
+  { name: "Demolition Derby Crash Racing", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/demolitionderbycrashracing.html" },
+  { name: "Doodle Jump", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/doodlejump.html" },
+  { name: "Draw Climber", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/drawclimber.html" },
+  { name: "Dread Head Parkour", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/dreadheadparkour.htm" },
+  { name: "Drift Boss", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/driftboss.htm" },
+  { name: "Drive Mad", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/drivemad.htm" },
+  { name: "Duck Life", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ducklife.html" },
+  { name: "Duck Life 2", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ducklife2.html" },
+  { name: "Duck Life 3", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ducklife3.html" },
+  { name: "Duck Life 4", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ducklife4.html" },
+  { name: "Duck Life 5", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ducklife5.html" },
+  { name: "Ducklings.io", cat: "io", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ducklingsio.html" },
+  { name: "Eagle Ride", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/eagleride.html" },
+  { name: "Earn to Die", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/earntodie.html" },
+  { name: "Earn to Die 2", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/earntodie2.html" },
+  { name: "Eggy Car", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/eggycar.html" },
+  { name: "Elastic Face", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/elasticface.htm" },
+  { name: "Escape Road", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/escaperoad.html" },
+  { name: "Escape Road 2", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/escaperoad2.html" },
+  { name: "Escaping the Prison", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/escapingtheprison.html" },
+  { name: "Evil Glitch", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/evilglitch.html" },
+  { name: "Fancy Pants Adventure", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fancypantsadventure.html" },
+  { name: "Fancy Pants Adventure 2", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fancypantsadventure2.html" },
+  { name: "Fireboy and Watergirl", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fireboyandwatergirl.html" },
+  { name: "Fireboy and Watergirl 2", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fireboyandwatergirl2.html" },
+  { name: "Fireboy and Watergirl 3", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fireboyandwatergirl3.html" },
+  { name: "Fireboy and Watergirl 4", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fireboyandwatergirl4.html" },
+  { name: "Flappy Bird", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/flappybird.html" },
+  { name: "Flood Runner 2", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/floodrunner2.html" },
+  { name: "Flood Runner 3", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/floodrunner3.html" },
+  { name: "Flood Runner 4", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/floodrunner4.html" },
+  { name: "Five Nights at Freddy's", cat: "horror", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fnaf.html" },
+  { name: "Five Nights at Freddy's 2", cat: "horror", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fnaf2.html" },
+  { name: "Five Nights at Freddy's 3", cat: "horror", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fnaf3.html" },
+  { name: "Five Nights at Freddy's 4", cat: "horror", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fnaf4.html" },
+  { name: "Football Bros", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/footballbros.html" },
+  { name: "Football Legends", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/footballlegends.html" },
+  { name: "Free Rider 3", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/freerider3.html" },
+  { name: "Fruit Ninja", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/fruitninja.html" },
+  { name: "Funny Battle", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/funnybattle.html" },
+  { name: "Funny Battle 2", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/funnybattle2.html" },
+  { name: "Funny Mad Racing", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/funnymadracing.html" },
+  { name: "Funny Shooter 2", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/funnyshooter2.html" },
+  { name: "Geometry Dash", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/geometrydash.html" },
+  { name: "Geometry Dash Lite", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/geometrydashlite.html" },
+  { name: "Geometry Vibes", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/geometryvibes.html" },
+  { name: "Getaway Shootout", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/getawayshootout.htm" },
+  { name: "Get on Top", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/getontop.html" },
+  { name: "Gladihoppers", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/gladihoppers.html" },
+  { name: "Google Baseball", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/googlebaseball.html" },
+  { name: "Google Dino", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/googledino.html" },
+  { name: "Granny", cat: "horror", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/granny.html" },
+  { name: "Granny 2", cat: "horror", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/granny2.html" },
+  { name: "Guess Their Answer", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/guesstheiranswer.html" },
+  { name: "Hanger 2", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/hanger2.html" },
+  { name: "Happy Wheels", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/happywheels.html" },
+  { name: "Helix Jump", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/helixjump.html" },
+  { name: "Highway Traffic", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/highwaytraffic.html" },
+  { name: "Hill Climb Racing Lite", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/hillclimbracinglite.html" },
+  { name: "Hole.io", cat: "io", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/holeio.html" },
+  { name: "House of Hazards", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/houseofhazards.html" },
+  { name: "Hover Racer Drive", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/hoverracerdrive.html" },
+  { name: "Idle Breakout", cat: "idle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/idlebreakout.html" },
+  { name: "Iron Snout", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ironsnout.html" },
+  { name: "Jetpack Joyride", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/jetpackjoyride.html" },
+  { name: "Johnny Trigger", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/johnnytrigger.html" },
+  { name: "Jumping Shell", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/jumpingshell.html" },
+  { name: "Karate Bros", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/karatebros.html" },
+  { name: "Kart Bros", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/kartbros.html" },
+  { name: "Learn to Fly", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/learntofly.html" },
+  { name: "Learn to Fly 2", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/learntofly2.html" },
+  { name: "Learn to Fly 3", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/learntofly3.html" },
+  { name: "Learn to Fly Idle", cat: "idle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/learntoflyidle.html" },
+  { name: "Level Devil", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/leveldevil.html" },
+  { name: "Madalin Stunt Cars 2", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/madalinstuntcars2.html" },
+  { name: "Melon Playground", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/melonplayground.html" },
+  { name: "Merge Round Racers", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/mergeroundracers.html" },
+  { name: "Minesweeper", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/minesweeper.html" },
+  { name: "Monkey Mart", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/monkeymart.htm" },
+  { name: "Monster Tracks", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/monstertracks.html" },
+  { name: "Moto X3M", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/motox3m.htm" },
+  { name: "Moto X3M 2", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/motox3m2.html" },
+  { name: "Moto X3M 3", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/motox3m3.html" },
+  { name: "Moto X3M Pool Party", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/motox3mpoolparty.html" },
+  { name: "Moto X3M Spooky Land", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/motox3mspookyland.html" },
+  { name: "Moto X3M Winter", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/motox3mwinter.html" },
+  { name: "Noob Miner", cat: "idle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/noobminer.html" },
+  { name: "Opposite Day", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/oppositeday.html" },
+  { name: "OvO", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ovo.html" },
+  { name: "OvO 2", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ovo2.html" },
+  { name: "OvO 3 Dimensions", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ovo3dimensions.html" },
+  { name: "Pac-Man", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/pacman.html" },
+  { name: "Papa's Bakeria", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papasbakeria.html" },
+  { name: "Papa's Burgeria", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papasburgeria.html" },
+  { name: "Papa's Cheeseria", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papascheeseria.html" },
+  { name: "Papa's Cupcakeria", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papascupcakeria.html" },
+  { name: "Papa's Donuteria", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papasdonuteria.html" },
+  { name: "Papa's Freezeria", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papasfreezeria.html" },
+  { name: "Papa's Hot Doggeria", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papashotdoggeria.html" },
+  { name: "Papa's Pancakeria", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papaspancakeria.html" },
+  { name: "Papa's Pastaria", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papaspastaria.html" },
+  { name: "Papa's Pizzeria", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papaspizzeria.html" },
+  { name: "Papa's Scooperia", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papasscooperia.html" },
+  { name: "Papa's Sushiria", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papassushiria.html" },
+  { name: "Papa's Tacomia", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papastacomia.html" },
+  { name: "Papa's Wingeria", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/papaswingeria.html" },
+  { name: "Paper.io 2", cat: "io", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/paperio2.htm" },
+  { name: "Parking Fury", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/parkingfury.html" },
+  { name: "Parking Fury 2", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/parkingfury2.html" },
+  { name: "Parking Fury 3", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/parkingfury3.html" },
+  { name: "Pico's School", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/picosschool.html" },
+  { name: "Ping Pong Chaos", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/pingpongchaos.html" },
+  { name: "Pixel Speedrun", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/pixelspeedrun.html" },
+  { name: "Plants vs Zombies", cat: "strategy", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/plantsvszombies.html" },
+  { name: "Plonky", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/plonky.html" },
+  { name: "Polytrack", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/polytrack.html" },
+  { name: "Poor Bunny", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/poorbunny.html" },
+  { name: "Pou", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/pou.html" },
+  { name: "Ragdoll Archers", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ragdollarchers.htm" },
+  { name: "Ragdoll Hit", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ragdollhit.html" },
+  { name: "Ragdoll Soccer", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/ragdollsoccer.html" },
+  { name: "Red Ball 4 Vol.1", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/redball4vol1.html" },
+  { name: "Red Ball 4 Vol.2", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/redball4vol2.html" },
+  { name: "Red Ball 4 Vol.3", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/redball4vol3.html" },
+  { name: "Retro Bowl", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/retrobowl.html" },
+  { name: "Retro Bowl College", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/retrobowlcollege.html" },
+  { name: "Retro Highway", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/retrohighway.html" },
+  { name: "Retro Ping Pong", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/retropingpong.html" },
+  { name: "Riddle School", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddleschool.html" },
+  { name: "Riddle School 2", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddleschool2.html" },
+  { name: "Riddle School 3", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddleschool3.html" },
+  { name: "Riddle School 4", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddleschool4.html" },
+  { name: "Riddle School 5", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddleschool5.html" },
+  { name: "Riddle Transfer", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddletransfer.html" },
+  { name: "Riddle Transfer 2", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/riddletransfer2.html" },
+  { name: "Rocket Soccer Derby", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/rocketsoccerderby.html" },
+  { name: "Rooftop Snipers", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/rooftopsnipers.htm" },
+  { name: "Rooftop Snipers 2", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/rooftopsnipers2.html" },
+  { name: "Run", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/run.html" },
+  { name: "Run 2", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/run2.html" },
+  { name: "Run 3", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/run3.html" },
+  { name: "Sand Game", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/sandgame.html" },
+  { name: "Short Life", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/shortlife.html" },
+  { name: "Slope", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/slope.html" },
+  { name: "Slope 2 Player", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/slope2player.html" },
+  { name: "Slope 3", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/slope3.html" },
+  { name: "Slow Roads", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/slowroads.html" },
+  { name: "Super Mario 63", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/sm63.html" },
+  { name: "Super Mario 64", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/sm64.html" },
+  { name: "Snowball.io", cat: "io", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snowballio.html" },
+  { name: "Snow Rider", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snowrider.htm" },
+  { name: "Snow Road", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/snowroad.htm" },
+  { name: "Soccer Bros", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/soccerbros.html" },
+  { name: "Soccer Random", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/soccerrandom.htm" },
+  { name: "Spacebar Clicker", cat: "idle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/spacebarclicker.html" },
+  { name: "Space is Key", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/spaceiskey.html" },
+  { name: "Space is Key 2", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/spaceiskey2.html" },
+  { name: "Space Waves", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/spacewaves.html" },
+  { name: "Speed Stars", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/speedstars.html" },
+  { name: "Sprunki", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/sprunki.html" },
+  { name: "Stack", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stack.html" },
+  { name: "Stacktris", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stacktris.html" },
+  { name: "State.io", cat: "strategy", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stateio.html" },
+  { name: "Stick Archers Battle", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stickarchersbattle.html" },
+  { name: "Stick Fighter", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stickfighter.html" },
+  { name: "Stickman Hook", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stickmanhook.html" },
+  { name: "Stick Merge", cat: "idle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/stickmerge.html" },
+  { name: "Subway Surfers Beijing", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/subwaysurfersbeijing.html" },
+  { name: "Subway Surfers Havana", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/subwaysurfershavana.html" },
+  { name: "Subway Surfers San Francisco", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/subwaysurferssanfrancisco.html" },
+  { name: "Super Bike the Champion", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/superbikethechampion.html" },
+  { name: "Super Hot", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/superhot.html" },
+  { name: "Super Liquid Soccer", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/superliquidsoccer.html" },
+  { name: "Superstar Car", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/superstarcar.html" },
+  { name: "Table Tennis World Tour", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tabletennisworldtour.html" },
+  { name: "Tag", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tag.html" },
+  { name: "Tap Road", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/taproad.html" },
+  { name: "Temple of Boom", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/templeofboom.html" },
+  { name: "Temple Run 2", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/templerun2.htm" },
+  { name: "Territorial.io", cat: "strategy", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/territorialio.html" },
+  { name: "The Impossible Quiz", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/theimpossiblequiz.html" },
+  { name: "The Impossible Quiz 2", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/theimpossiblequiz2.html" },
+  { name: "There Is No Game", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/thereisnog.html" },
+  { name: "They Are Coming", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/theyarecoming.html" },
+  { name: "This is the Only Level", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/thisistheonlylevel.html" },
+  { name: "This is the Only Level Too", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/thisistheonlyleveltoo.html" },
+  { name: "Time Shooter 2", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/timeshooter2.html" },
+  { name: "Time Shooter 3", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/timeshooter3.htm" },
+  { name: "Tiny Fishing", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tinyfishing.html" },
+  { name: "Tomb of the Mask", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tombofthemask.htm" },
+  { name: "Trap the Cat", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/trapthecat.html" },
+  { name: "Trivia Crack", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/triviacrack.html" },
+  { name: "Tube Jumpers", cat: "action", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tubejumpers.html" },
+  { name: "Tunnel Rush", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/tunnelrush.html" },
+  { name: "Unicycle Hero", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/unicyclehero.html" },
+  { name: "Vex 4", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex4.html" },
+  { name: "Vex 5", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex5.html" },
+  { name: "Vex 6", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex6.htm" },
+  { name: "Vex 7", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex7.htm" },
+  { name: "Vex 8", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vex8.htm" },
+  { name: "Vexx 3M", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vexx3m.html" },
+  { name: "Vexx 3M 2", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/vexx3m2.html" },
+  { name: "Volley Random", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/volleyrandom.html" },
+  { name: "War the Knights", cat: "strategy", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wartheknights.html" },
+  { name: "We Become What We Behold", cat: "simulation", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/webecomewhatwebehold.html" },
+  { name: "Wheelie Bike", cat: "racing", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheeliebike.html" },
+  { name: "Wheely", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely.html" },
+  { name: "Wheely 2", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely2.html" },
+  { name: "Wheely 3", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely3.html" },
+  { name: "Wheely 4", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely4.html" },
+  { name: "Wheely 5", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely5.html" },
+  { name: "Wheely 6", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely6.html" },
+  { name: "Wheely 7", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely7.html" },
+  { name: "Wheely 8", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wheely8.html" },
+  { name: "Wordle Unlimited", cat: "puzzle", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wordleunlimited.html" },
+  { name: "World's Hardest Game", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/worldshardestgame.html" },
+  { name: "World's Hardest Game 2", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/worldshardestgame2.html" },
+  { name: "World's Hardest Game 3", cat: "platformer", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/worldshardestgame3.html" },
+  { name: "Wrestle Bros", cat: "sports", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/wrestlebros.html" },
+  { name: "Zombie Rush", cat: "shooting", url: "https://raw.githubusercontent.com/CoolDude2349/Offline-HTML-Games-Pack/master/offline/zombierush.html" }
+];
+
+
+const CAT_ICONS = {
+  action: "⚔️", platformer: "🏃", puzzle: "🧩", racing: "🏎️",
+  shooting: "🔫", sports: "⚽", strategy: "🏰", simulation: "🎭",
+  horror: "👻", io: "🌐", idle: "💰", minecraft: "⛏️"
+};
+
+const CAT_GRADIENTS = {
+  action:     "linear-gradient(135deg,#3d0010,#7a0020)",
+  platformer: "linear-gradient(135deg,#3d1a00,#7a3800)",
+  puzzle:     "linear-gradient(135deg,#2d2600,#5a4c00)",
+  racing:     "linear-gradient(135deg,#003040,#006080)",
+  shooting:   "linear-gradient(135deg,#3d0000,#7a0000)",
+  sports:     "linear-gradient(135deg,#003010,#006020)",
+  strategy:   "linear-gradient(135deg,#1a0040,#400090)",
+  simulation: "linear-gradient(135deg,#3d0030,#7a0060)",
+  horror:     "linear-gradient(135deg,#1a0000,#3d0000)",
+  io:         "linear-gradient(135deg,#003030,#006060)",
+  idle:       "linear-gradient(135deg,#302000,#604000)",
+  minecraft:  "linear-gradient(135deg,#0a2000,#154000)",
+};
+
+const FEATURED_NAMES = [
+  "Slope", "Run 3", "Happy Wheels", "Geometry Dash", "Flappy Bird",
+  "Among Us", "Cookie Clicker", "Retro Bowl", "OvO", "Bloons Tower Defense 5",
+  "Moto X3M", "Pac-Man", "2048", "Plants vs Zombies", "Minecraft 1.12"
+];
+
+const CAT_LABELS = {
+  action: "Action", platformer: "Platformer", puzzle: "Puzzle", racing: "Racing",
+  shooting: "Shooting", sports: "Sports", strategy: "Strategy", simulation: "Simulation",
+  horror: "Horror", io: ".io Games", idle: "Idle/Clicker", minecraft: "Minecraft"
+};
+
+// Persistence
+let favorites = new Set(JSON.parse(localStorage.getItem("arcade_favs") || "[]"));
+let recentlyPlayed = JSON.parse(localStorage.getItem("arcade_recent") || "[]");
+let ratings = JSON.parse(localStorage.getItem("arcade_ratings") || "{}");
+function saveFavorites() { localStorage.setItem("arcade_favs", JSON.stringify([...favorites])); }
+function saveRecent()    { localStorage.setItem("arcade_recent", JSON.stringify(recentlyPlayed)); }
+function saveRatings()   { localStorage.setItem("arcade_ratings", JSON.stringify(ratings)); }
+function getRatingScore(name) {
+  const r = ratings[name] || { up: 0, down: 0, mine: null };
+  return (r.up || 0) - (r.down || 0);
+}
+
+// PWA service worker
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
+
+const cats = ["all", "favorites", ...Object.keys(CAT_LABELS)];
+let activeFilter = "all";
+let searchQuery = "";
+let sortOrder = "default";
+
+const filtersEl = document.getElementById("filters");
+const gridEl    = document.getElementById("grid");
+const statsEl   = document.getElementById("stats");
+
+const catCounts = {};
+GAMES.forEach(g => { catCounts[g.cat] = (catCounts[g.cat] || 0) + 1; });
+
+cats.forEach(cat => {
+  const btn = document.createElement("button");
+  btn.className = "filter-btn" + (cat === "all" ? " active" : "");
+  if (cat === "all")       btn.textContent = `All Games (${GAMES.length})`;
+  else if (cat === "favorites") btn.textContent = `❤️ Favorites`;
+  else btn.textContent = `${CAT_ICONS[cat] || ""} ${CAT_LABELS[cat]} (${catCounts[cat] || 0})`;
+  btn.dataset.cat = cat;
+  btn.addEventListener("click", () => {
+    activeFilter = cat;
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    render();
+  });
+  filtersEl.appendChild(btn);
+});
+
+document.getElementById("search").addEventListener("input", e => {
+  searchQuery = e.target.value.toLowerCase();
+  render();
+});
+
+document.getElementById("sort-select").addEventListener("change", e => {
+  sortOrder = e.target.value;
+  render();
+});
+
+let filteredGames = [];
+
+function render() {
+  kbIdx = -1;
+  filteredGames = GAMES.filter(g => {
+    if (activeFilter === "favorites") return favorites.has(g.name);
+    const matchCat = activeFilter === "all" || g.cat === activeFilter;
+    const matchSearch = !searchQuery || g.name.toLowerCase().includes(searchQuery);
+    return matchCat && matchSearch;
+  });
+
+  if (sortOrder === "az")   filteredGames = [...filteredGames].sort((a, b) => a.name.localeCompare(b.name));
+  else if (sortOrder === "za")  filteredGames = [...filteredGames].sort((a, b) => b.name.localeCompare(a.name));
+  else if (sortOrder === "top") filteredGames = [...filteredGames].sort((a, b) => getRatingScore(b.name) - getRatingScore(a.name));
+
+  statsEl.textContent = `${filteredGames.length} game${filteredGames.length !== 1 ? "s" : ""} found`;
+
+  if (filteredGames.length === 0) {
+    gridEl.innerHTML = activeFilter === "favorites"
+      ? '<div class="empty">No favorites yet — click ❤️ on any game to save it!</div>'
+      : '<div class="empty">No games found. Try a different search!</div>';
+    return;
+  }
+
+  gridEl.innerHTML = filteredGames.map((g, i) => {
+    const isFav = favorites.has(g.name);
+    const safeName = g.name.replace(/&/g,"&amp;").replace(/"/g,"&quot;");
+    const grad = CAT_GRADIENTS[g.cat] || "linear-gradient(135deg,#1a1a35,#2a2a55)";
+    return `
+    <div class="card${isFav ? " favorited" : ""}" data-idx="${i}">
+      <button class="fav-btn" data-name="${safeName}" title="${isFav ? "Remove from favorites" : "Add to favorites"}">${isFav ? "❤️" : "🤍"}</button>
+      <div class="card-thumb" style="background:${grad}">
+        <span style="filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5))">${CAT_ICONS[g.cat] || "🎮"}</span>
+        <div class="play-overlay">▶ Play</div>
+      </div>
+      <div class="card-info">
+        <div class="card-name">${g.name}</div>
+        <span class="cat-badge cat-${g.cat}">${CAT_LABELS[g.cat] || g.cat}</span>
+        <div class="rating-bar">
+          <button class="rate-btn${(ratings[g.name]?.mine === 'up') ? ' active' : ''}" data-rate="up" data-name="${safeName}">👍</button>
+          <span class="rate-count">${(ratings[g.name]?.up || 0)}</span>
+          <button class="rate-btn${(ratings[g.name]?.mine === 'down') ? ' active' : ''}" data-rate="down" data-name="${safeName}">👎</button>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+gridEl.addEventListener("click", e => {
+  const favBtn = e.target.closest(".fav-btn");
+  if (favBtn) {
+    e.stopPropagation();
+    const name = favBtn.dataset.name;
+    const adding = !favorites.has(name);
+    if (adding) favorites.add(name); else favorites.delete(name);
+    saveFavorites();
+    pushFavorite(name, adding);
+    render();
+    return;
+  }
+  const rateBtn = e.target.closest(".rate-btn");
+  if (rateBtn) {
+    e.stopPropagation();
+    const name = rateBtn.dataset.name;
+    const dir = rateBtn.dataset.rate;
+    if (!ratings[name]) ratings[name] = { up: 0, down: 0, mine: null };
+    const r = ratings[name];
+    const prev = r.mine;
+    if (prev === dir) { r[dir]--; r.mine = null; }
+    else { if (prev) r[prev]--; r[dir]++; r.mine = dir; }
+    saveRatings();
+    pushRating(name, r.mine, prev);
+    render();
+    return;
+  }
+  const card = e.target.closest(".card[data-idx]");
+  if (!card) return;
+  const g = filteredGames[card.dataset.idx];
+  if (g) openGame(g.name, g.url, g.cat);
+});
+
+function renderRecentlyPlayed() {
+  const wrap = document.getElementById("recently-played-wrap");
+  const container = document.getElementById("recently-played");
+  if (!recentlyPlayed.length) { wrap.style.display = "none"; return; }
+  wrap.style.display = "";
+  container.innerHTML = recentlyPlayed.map(g => {
+    const safeName = g.name.replace(/&/g,"&amp;").replace(/"/g,"&quot;");
+    return `<div class="recent-card" data-name="${safeName}">
+      <div class="card-icon" style="font-size:1.5rem">${CAT_ICONS[g.cat] || "🎮"}</div>
+      <div class="card-name">${g.name}</div>
+      <span class="cat-badge cat-${g.cat}" style="font-size:0.62rem">${CAT_LABELS[g.cat] || g.cat}</span>
+    </div>`;
+  }).join("");
+}
+
+document.getElementById("recently-played").addEventListener("click", e => {
+  const card = e.target.closest(".recent-card");
+  if (!card) return;
+  const g = GAMES.find(x => x.name === card.dataset.name);
+  if (g) openGame(g.name, g.url, g.cat);
+});
+
+// ── Featured games ──
+function renderFeatured() {
+  const row = document.getElementById("featured-row");
+  const games = FEATURED_NAMES.map(n => GAMES.find(g => g.name === n)).filter(Boolean);
+  row.innerHTML = games.map(g => {
+    const grad = CAT_GRADIENTS[g.cat] || "linear-gradient(135deg,#1a1a35,#2a2a55)";
+    const safeName = g.name.replace(/&/g,"&amp;").replace(/"/g,"&quot;");
+    return `<div class="featured-card" data-name="${safeName}">
+      <span class="featured-badge">⭐ Featured</span>
+      <div class="card-thumb" style="background:${grad}">
+        <span style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5))">${CAT_ICONS[g.cat] || "🎮"}</span>
+        <div class="play-overlay">▶ Play</div>
+      </div>
+      <div class="card-info">
+        <div class="card-name">${g.name}</div>
+        <span class="cat-badge cat-${g.cat}" style="font-size:0.62rem">${CAT_LABELS[g.cat]}</span>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+document.getElementById("featured-row").addEventListener("click", e => {
+  const card = e.target.closest(".featured-card");
+  if (!card) return;
+  const g = GAMES.find(x => x.name === card.dataset.name);
+  if (g) openGame(g.name, g.url, g.cat);
+});
+
+// ── Light / dark mode ──
+const themeBtn = document.getElementById("theme-btn");
+const savedTheme = localStorage.getItem("arcade_theme");
+if (savedTheme === "light") { document.body.classList.add("light"); themeBtn.textContent = "☀️"; }
+
+themeBtn.addEventListener("click", () => {
+  const isLight = document.body.classList.toggle("light");
+  themeBtn.textContent = isLight ? "☀️" : "🌙";
+  localStorage.setItem("arcade_theme", isLight ? "light" : "dark");
+});
+
+// ── Share button ──
+let currentGameName = "";
+document.getElementById("share-btn").addEventListener("click", () => {
+  const base = location.href.split("?")[0];
+  const url = `${base}?game=${encodeURIComponent(currentGameName)}`;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.getElementById("share-btn");
+    btn.textContent = "✓ Copied!";
+    setTimeout(() => btn.textContent = "🔗 Share", 2000);
+  });
+});
+
+// ── Keyboard shortcuts ──
+let kbIdx = -1;
+
+function updateKbFocus(cards) {
+  cards.forEach((c, i) => c.classList.toggle("kb-focused", i === kbIdx));
+  if (kbIdx >= 0) cards[kbIdx]?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+}
+
+document.addEventListener("keydown", e => {
+  if (modal.classList.contains("open")) return;
+
+  // / → focus search
+  if (e.key === "/" && document.activeElement !== document.getElementById("search")) {
+    e.preventDefault();
+    document.getElementById("search").focus();
+    return;
+  }
+
+  if (["ArrowRight","ArrowLeft","ArrowDown","ArrowUp","Enter"].includes(e.key)) {
+    const cards = [...gridEl.querySelectorAll(".card[data-idx]")];
+    if (!cards.length) return;
+
+    if (e.key === "Enter" && kbIdx >= 0) {
+      const g = filteredGames[kbIdx];
+      if (g) openGame(g.name, g.url, g.cat);
+      return;
+    }
+
+    e.preventDefault();
+    if (e.key === "ArrowRight" || e.key === "ArrowDown")
+      kbIdx = Math.min(kbIdx + 1, cards.length - 1);
+    else
+      kbIdx = Math.max(kbIdx - 1, 0);
+
+    updateKbFocus(cards);
+  }
+});
+
+const modal = document.getElementById("modal");
+const gameFrame = document.getElementById("game-frame");
+const modalTitle = document.getElementById("modal-title");
+const modalLoading = document.getElementById("modal-loading");
+const loadingLabel = document.getElementById("loading-label");
+const openTabBtn = document.getElementById("open-tab-btn");
+const modalSpinner = document.getElementById("modal-spinner");
+let currentBlobUrl = null;
+let currentGameUrl = null;
+
+openTabBtn.addEventListener("click", () => {
+  window.open(currentGameUrl, "_blank");
+  closeGame();
+});
+
+async function openGame(name, url, cat) {
+  logPlay(name);
+  // Track recently played
+  recentlyPlayed = recentlyPlayed.filter(r => r.name !== name);
+  recentlyPlayed.unshift({ name, url, cat });
+  if (recentlyPlayed.length > 8) recentlyPlayed = recentlyPlayed.slice(0, 8);
+  saveRecent();
+  renderRecentlyPlayed();
+
+  modal.classList.add("open");
+  document.body.style.overflow = "hidden";
+  modalTitle.textContent = (CAT_ICONS[cat] || "🎮") + "  " + name;
+  currentGameUrl = url;
+  currentGameName = name;
+  kbIdx = -1;
+
+  // Reset loading UI
+  modalLoading.classList.remove("hidden");
+  modalSpinner.style.display = "";
+  loadingLabel.textContent = "Loading game…";
+  loadingLabel.style.color = "";
+  openTabBtn.style.display = "none";
+  gameFrame.src = "";
+  if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); currentBlobUrl = null; }
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const html = await res.text();
+    const blob = new Blob([html], { type: "text/html" });
+    currentBlobUrl = URL.createObjectURL(blob);
+    gameFrame.onload = () => modalLoading.classList.add("hidden");
+    gameFrame.src = currentBlobUrl;
+  } catch (err) {
+    console.error("Game load error:", err);
+    modalSpinner.style.display = "none";
+    loadingLabel.style.color = "#ff6b6b";
+    loadingLabel.textContent = `Failed to load (${err.message}) — try opening in a new tab instead.`;
+    openTabBtn.style.display = "";
+  }
+}
+
+function closeGame() {
+  modal.classList.remove("open");
+  gameFrame.src = "";
+  document.body.style.overflow = "";
+}
+
+function toggleFullscreen() {
+  const wrap = document.getElementById("modal-frame-wrap");
+  if (!document.fullscreenElement) {
+    wrap.requestFullscreen().catch(() => {});
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && modal.classList.contains("open")) closeGame();
+});
+
+// ── URL share param: auto-open game if ?game= is present ──
+const shareParam = new URLSearchParams(location.search).get("game");
+if (shareParam) {
+  const g = GAMES.find(x => x.name === shareParam);
+  if (g) setTimeout(() => openGame(g.name, g.url, g.cat), 300);
+}
+
+render();
+renderRecentlyPlayed();
+renderFeatured();
+
+// ── Supabase Auth & Cloud Sync ──
+const SB_URL = "https://jemkakaywibgiryukgxo.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImplbWtha2F5d2liZ2lyeXVrZ3hvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0NjU5MjksImV4cCI6MjA5NjA0MTkyOX0.ZldsleKmiY_z3vN4qtHELPLKVSmK_ZSbs78_7aXk04s";
+const sbClient = window.supabase.createClient(SB_URL, SB_KEY);
+let currentUser = null;
+
+async function sbRest(method, path, body) {
+  const session = (await sbClient.auth.getSession()).data.session;
+  const token = session?.access_token || SB_KEY;
+  const res = await fetch(`${SB_URL}/rest/v1/${path}`, {
+    method,
+    headers: { "apikey": SB_KEY, "Authorization": `Bearer ${token}`, "Content-Type": "application/json", "Prefer": method === "POST" ? "return=minimal" : "" },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if (!res.ok && res.status !== 204) throw new Error(await res.text());
+  return res.status === 204 ? null : res.json();
+}
+
+function showSyncBadge() {
+  const b = document.getElementById("sync-badge");
+  b.style.display = "block";
+  setTimeout(() => b.style.display = "none", 2000);
+}
+
+async function syncFavorites() {
+  if (!currentUser) return;
+  const remote = await sbRest("GET", `arcade_favorites?user_id=eq.${currentUser.id}&select=game_name`);
+  const remoteSet = new Set((remote || []).map(r => r.game_name));
+  // Upload local favs not in remote
+  for (const name of favorites) {
+    if (!remoteSet.has(name)) await sbRest("POST", "arcade_favorites", { user_id: currentUser.id, game_name: name }).catch(() => {});
+  }
+  // Merge remote into local
+  for (const name of remoteSet) favorites.add(name);
+  saveFavorites(); render(); showSyncBadge();
+}
+
+async function pushFavorite(name, add) {
+  if (!currentUser) return;
+  if (add) await sbRest("POST", "arcade_favorites", { user_id: currentUser.id, game_name: name }).catch(() => {});
+  else await sbRest("DELETE", `arcade_favorites?user_id=eq.${currentUser.id}&game_name=eq.${encodeURIComponent(name)}`).catch(() => {});
+}
+
+async function syncRatings() {
+  if (!currentUser) return;
+  const remote = await sbRest("GET", `arcade_ratings?user_id=eq.${currentUser.id}&select=game_name,rating`);
+  for (const r of (remote || [])) {
+    if (!ratings[r.game_name]) ratings[r.game_name] = { up: 0, down: 0, mine: null };
+    const local = ratings[r.game_name];
+    if (!local.mine) { local[r.rating]++; local.mine = r.rating; }
+  }
+  saveRatings(); render(); showSyncBadge();
+}
+
+async function pushRating(name, dir, prev) {
+  if (!currentUser) return;
+  if (prev) await sbRest("DELETE", `arcade_ratings?user_id=eq.${currentUser.id}&game_name=eq.${encodeURIComponent(name)}`).catch(() => {});
+  if (dir) await sbRest("POST", "arcade_ratings", { user_id: currentUser.id, game_name: name, rating: dir }).catch(() => {});
+}
+
+async function logPlay(gameName) {
+  const uid = currentUser?.id || null;
+  sbRest("POST", "game_plays", { game_name: gameName, user_id: uid }).catch(() => {});
+}
+
+function updateAuthUI(user) {
+  currentUser = user;
+  const authBtn = document.getElementById("auth-btn");
+  const userBtn = document.getElementById("user-btn");
+  const userAvatar = document.getElementById("user-avatar");
+  const userName = document.getElementById("user-name");
+  if (user) {
+    authBtn.style.display = "none";
+    userBtn.style.display = "flex";
+    const initial = (user.email || "U")[0].toUpperCase();
+    userAvatar.textContent = initial;
+    userName.textContent = user.email.split("@")[0];
+    syncFavorites();
+    syncRatings();
+  } else {
+    authBtn.style.display = "";
+    userBtn.style.display = "none";
+    document.getElementById("user-dropdown").classList.remove("open");
+  }
+}
+
+sbClient.auth.getSession().then(({ data }) => updateAuthUI(data.session?.user || null));
+sbClient.auth.onAuthStateChange((_, session) => updateAuthUI(session?.user || null));
+
+document.getElementById("auth-btn").addEventListener("click", () => {
+  document.getElementById("auth-overlay").classList.add("open");
+});
+document.getElementById("auth-close").addEventListener("click", () => {
+  document.getElementById("auth-overlay").classList.remove("open");
+});
+document.getElementById("auth-overlay").addEventListener("click", e => {
+  if (e.target === document.getElementById("auth-overlay"))
+    document.getElementById("auth-overlay").classList.remove("open");
+});
+
+document.getElementById("user-btn").addEventListener("click", e => {
+  e.stopPropagation();
+  document.getElementById("user-dropdown").classList.toggle("open");
+});
+document.addEventListener("click", () => document.getElementById("user-dropdown").classList.remove("open"));
+
+document.getElementById("signout-btn").addEventListener("click", () => {
+  sbClient.auth.signOut();
+});
+
+function switchTab(tab) {
+  document.getElementById("auth-login-panel").style.display = tab === "login" ? "" : "none";
+  document.getElementById("auth-signup-panel").style.display = tab === "signup" ? "" : "none";
+  document.getElementById("tab-login").classList.toggle("active", tab === "login");
+  document.getElementById("tab-signup").classList.toggle("active", tab === "signup");
+}
+
+async function handleLogin() {
+  const email = document.getElementById("login-email").value.trim();
+  const pass = document.getElementById("login-password").value;
+  const err = document.getElementById("login-error");
+  const btn = document.getElementById("login-btn");
+  err.textContent = ""; btn.disabled = true; btn.textContent = "Signing in…";
+  const { error } = await sbClient.auth.signInWithPassword({ email, password: pass });
+  if (error) { err.textContent = error.message; }
+  else { document.getElementById("auth-overlay").classList.remove("open"); }
+  btn.disabled = false; btn.textContent = "Sign In";
+}
+
+async function handleSignup() {
+  const username = document.getElementById("signup-username").value.trim();
+  const email = document.getElementById("signup-email").value.trim();
+  const pass = document.getElementById("signup-password").value;
+  const err = document.getElementById("signup-error");
+  const success = document.getElementById("signup-success");
+  const btn = document.getElementById("signup-btn");
+  err.textContent = ""; success.textContent = "";
+  if (!username) { err.textContent = "Username is required"; return; }
+  btn.disabled = true; btn.textContent = "Creating account…";
+  const { error } = await sbClient.auth.signUp({ email, password: pass, options: { data: { username, display_name: username } } });
+  if (error) { err.textContent = error.message; }
+  else { success.textContent = "Account created! Check your email to confirm, then log in."; switchTab("login"); }
+  btn.disabled = false; btn.textContent = "Create Account";
+}
+
+</script>
 </body>
 </html>
