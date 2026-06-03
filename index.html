@@ -774,6 +774,37 @@
     .stats-bar { padding: 10px 12px 0; }
     .recently-played-wrap { padding: 12px 12px 0; }
   }
+
+  /* ── Tab navigation ── */
+  .nav-links-left {
+    position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+    display: flex; gap: 4px; align-items: center;
+  }
+
+  .tab-btn {
+    background: none; border: none; color: var(--muted);
+    padding: 6px 13px; border-radius: 999px;
+    font-size: 0.82rem; font-weight: 600; cursor: pointer;
+    transition: all 0.15s; white-space: nowrap; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .tab-btn:hover { background: var(--surface); color: var(--text); }
+  .tab-btn.active { background: var(--accent); color: #fff; }
+
+  /* ── Sections ── */
+  .app-section { display: none; }
+  .app-section.active { display: block; }
+
+  .iframe-section {
+    display: none;
+    height: calc(100vh - 90px);
+  }
+  .iframe-section.active { display: block; }
+  .iframe-section iframe { width: 100%; height: 100%; border: none; display: block; }
+
+  /* hide arcade-only header elements when not on games tab */
+  .games-only { transition: opacity 0.15s; }
+  .games-only.hidden { opacity: 0; pointer-events: none; }
 </style>
 </head>
 <body>
@@ -786,9 +817,10 @@
   </div>
   <div class="filters" id="filters"></div>
   <div class="nav-links-left">
-    <a class="chat-btn" href="/chat.html">💬 Chat</a>
-    <a class="nav-link-small" href="/homework.html">📚 Notes</a>
-    <a class="nav-link-small" href="/go.html">🔗 Links</a>
+    <button class="tab-btn active" data-tab="games" onclick="switchTab('games')">🎮 Games</button>
+    <button class="tab-btn" data-tab="chat" onclick="switchTab('chat')">💬 Chat</button>
+    <button class="tab-btn" data-tab="notes" onclick="switchTab('notes')">📚 Notes</button>
+    <button class="tab-btn" data-tab="links" onclick="switchTab('links')">🔗 Links</button>
   </div>
   <button class="auth-btn" id="auth-btn">👤 Login</button>
   <div class="user-btn" id="user-btn">
@@ -832,6 +864,7 @@
   </div>
 </div>
 
+<div class="app-section active" id="section-games">
 <div class="page-layout">
 
   <aside class="ad-sidebar">
@@ -893,6 +926,11 @@
   <span>🎮 Game Arcade &mdash; 300+ free games</span>
   <a href="https://github.com/CoolDude2349/Offline-HTML-Games-Pack" target="_blank" rel="noopener">Games Source ↗</a>
 </footer>
+</div><!-- end #section-games -->
+
+<div class="iframe-section" id="section-chat"></div>
+<div class="iframe-section" id="section-notes"></div>
+<div class="iframe-section" id="section-links"></div>
 
 <div class="modal" id="modal">
   <div class="modal-bar">
@@ -1580,6 +1618,45 @@ if (shareParam) {
 render();
 renderRecentlyPlayed();
 renderFeatured();
+
+// ── Tab switching ──
+const TAB_SRCS = { chat: "/chat.html", notes: "/homework.html", links: "/go.html" };
+const iframeCache = {};
+
+function switchTab(tab) {
+  // Update tab buttons
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+
+  // Toggle sections
+  document.getElementById("section-games").classList.toggle("active", tab === "games");
+  document.getElementById("section-games").style.display = tab === "games" ? "" : "none";
+  ["chat", "notes", "links"].forEach(t => {
+    const el = document.getElementById(`section-${t}`);
+    el.classList.toggle("active", t === tab);
+  });
+
+  // Hide/show arcade-only header stuff
+  const gamesOnly = document.getElementById("search")?.closest(".search-bar");
+  const filtersEl2 = document.getElementById("filters");
+  if (gamesOnly) gamesOnly.style.display = tab === "games" ? "" : "none";
+  if (filtersEl2) filtersEl2.style.display = tab === "games" ? "" : "none";
+
+  // Lazy-load iframes
+  if (tab !== "games" && !iframeCache[tab]) {
+    const iframe = document.createElement("iframe");
+    iframe.src = TAB_SRCS[tab];
+    iframe.allow = "fullscreen";
+    document.getElementById(`section-${tab}`).appendChild(iframe);
+    iframeCache[tab] = true;
+  }
+
+  // Hash routing
+  history.replaceState(null, "", tab === "games" ? "/" : `/#${tab}`);
+}
+
+// Restore tab from hash on load
+const initTab = location.hash.slice(1);
+if (["chat", "notes", "links"].includes(initTab)) switchTab(initTab);
 
 // ── Supabase Auth & Cloud Sync ──
 const SB_URL = "https://jemkakaywibgiryukgxo.supabase.co";
