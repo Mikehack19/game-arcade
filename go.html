@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Link Shortener</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0d0d1a; color: #e0e0ff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+  .card { background: #1a1a35; border: 1px solid #2a2a55; border-radius: 16px; padding: 32px; width: 100%; max-width: 480px; }
+  h1 { font-size: 1.4rem; font-weight: 800; margin-bottom: 6px; background: linear-gradient(90deg, #7c4dff, #00e5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  p { color: #8888aa; font-size: 0.85rem; margin-bottom: 24px; }
+  label { font-size: 0.82rem; font-weight: 600; color: #8888aa; display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+  input { width: 100%; padding: 10px 14px; background: #13132a; border: 1px solid #2a2a55; border-radius: 8px; color: #e0e0ff; font-size: 0.95rem; outline: none; margin-bottom: 16px; }
+  input:focus { border-color: #7c4dff; }
+  button { width: 100%; padding: 11px; background: linear-gradient(90deg, #7c4dff, #00e5ff); color: #fff; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: opacity 0.15s; }
+  button:hover { opacity: 0.88; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .result { margin-top: 20px; background: #13132a; border: 1px solid #2a2a55; border-radius: 10px; padding: 14px 16px; display: none; }
+  .result-url { font-size: 0.95rem; font-weight: 600; color: #00e5ff; word-break: break-all; }
+  .copy-btn { margin-top: 10px; width: 100%; padding: 8px; background: #2a2a55; color: #e0e0ff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+  .copy-btn:hover { background: #3a3a66; }
+  .error { color: #ff6b6b; font-size: 0.85rem; margin-top: 12px; display: none; }
+  .links-section { margin-top: 28px; border-top: 1px solid #2a2a55; padding-top: 20px; }
+  .links-section h2 { font-size: 0.85rem; font-weight: 700; color: #8888aa; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+  .link-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1e1e3a; font-size: 0.82rem; gap: 8px; }
+  .link-slug { color: #7c4dff; font-weight: 600; flex-shrink: 0; }
+  .link-dest { color: #8888aa; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+  .del-btn { background: none; border: none; color: #ff6b6b; cursor: pointer; font-size: 0.8rem; flex-shrink: 0; }
+  .back { display: block; text-align: center; color: #8888aa; font-size: 0.82rem; text-decoration: none; margin-top: 20px; }
+  .back:hover { color: #e0e0ff; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>🔗 Link Shortener</h1>
+  <p>Create short links that redirect anywhere</p>
+
+  <label>Destination URL</label>
+  <input type="url" id="dest-url" placeholder="https://example.com" />
+
+  <label>Custom slug (optional)</label>
+  <input type="text" id="slug-input" placeholder="e.g. notes (leave blank for random)" maxlength="30" />
+
+  <button id="create-btn" onclick="createLink()">Create Short Link</button>
+  <div class="error" id="error-msg"></div>
+
+  <div class="result" id="result">
+    <div style="font-size:0.75rem;color:#8888aa;margin-bottom:4px">Your short link:</div>
+    <div class="result-url" id="result-url"></div>
+    <button class="copy-btn" onclick="copyLink()">📋 Copy Link</button>
+  </div>
+
+  <div class="links-section">
+    <h2>Your Links</h2>
+    <div id="links-list"><p style="color:#8888aa;font-size:0.82rem">No links yet</p></div>
+  </div>
+</div>
+
+<a class="back" href="/index.html">← Back to Arcade</a>
+
+<script>
+const SUPABASE_URL = "https://jemkakaywibgiryukgxo.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImplbWtha2F5d2liZ2lyeXVrZ3hvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0NjU5MjksImV4cCI6MjA5NjA0MTkyOX0.ZldsleKmiY_z3vN4qtHELPLKVSmK_ZSbs78_7aXk04s";
+
+async function sb(method, path, body) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    method,
+    headers: {
+      "apikey": SUPABASE_KEY,
+      "Authorization": `Bearer ${SUPABASE_KEY}`,
+      "Content-Type": "application/json",
+      "Prefer": method === "POST" ? "return=representation" : ""
+    },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if (!res.ok) { const t = await res.text(); throw new Error(t); }
+  return res.status === 204 ? null : res.json();
+}
+
+function randSlug() { return Math.random().toString(36).slice(2, 7); }
+
+async function createLink() {
+  const dest = document.getElementById("dest-url").value.trim();
+  const slugInput = document.getElementById("slug-input").value.trim().replace(/[^a-z0-9-_]/gi, "");
+  const slug = slugInput || randSlug();
+  const err = document.getElementById("error-msg");
+  const btn = document.getElementById("create-btn");
+
+  err.style.display = "none";
+  if (!dest) { err.textContent = "Please enter a destination URL"; err.style.display = "block"; return; }
+
+  btn.disabled = true;
+  btn.textContent = "Creating…";
+  try {
+    await sb("POST", "short_links", { slug, destination: dest });
+    const base = location.origin;
+    const short = `${base}/go.html?r=${slug}`;
+    document.getElementById("result-url").textContent = short;
+    document.getElementById("result").style.display = "block";
+    document.getElementById("dest-url").value = "";
+    document.getElementById("slug-input").value = "";
+    loadLinks();
+  } catch(e) {
+    err.textContent = e.message.includes("duplicate") ? "That slug is already taken, try another" : "Error: " + e.message;
+    err.style.display = "block";
+  }
+  btn.disabled = false;
+  btn.textContent = "Create Short Link";
+}
+
+async function loadLinks() {
+  try {
+    const data = await sb("GET", "short_links?select=slug,destination&order=created_at.desc&limit=20");
+    const list = document.getElementById("links-list");
+    if (!data?.length) { list.innerHTML = '<p style="color:#8888aa;font-size:0.82rem">No links yet</p>'; return; }
+    list.innerHTML = data.map(l => `
+      <div class="link-item">
+        <span class="link-slug">/go?r=${l.slug}</span>
+        <span class="link-dest">${l.destination}</span>
+        <button class="del-btn" onclick="deleteLink('${l.slug}')">✕</button>
+      </div>`).join("");
+  } catch(e) { console.error(e); }
+}
+
+async function deleteLink(slug) {
+  await sb("DELETE", `short_links?slug=eq.${slug}`);
+  loadLinks();
+}
+
+function copyLink() {
+  const url = document.getElementById("result-url").textContent;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.querySelector(".copy-btn");
+    btn.textContent = "✓ Copied!";
+    setTimeout(() => btn.textContent = "📋 Copy Link", 2000);
+  });
+}
+
+// Handle redirect if ?r= param present
+const r = new URLSearchParams(location.search).get("r");
+if (r) {
+  sb("GET", `short_links?slug=eq.${r}&select=destination`).then(data => {
+    if (data?.[0]?.destination) window.location.replace(data[0].destination);
+    else document.body.innerHTML = '<p style="text-align:center;padding:40px;color:#ff6b6b">Link not found</p>';
+  });
+} else {
+  loadLinks();
+}
+</script>
+</body>
+</html>

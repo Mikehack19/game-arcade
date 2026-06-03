@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Hub — Notes & Resources</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f9fafb; color: #111827; }
+  header { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; }
+  .logo { font-size: 1.2rem; font-weight: 700; color: #2563eb; }
+  nav a { margin-left: 20px; text-decoration: none; color: #6b7280; font-size: 0.9rem; }
+  nav a:hover { color: #111827; }
+  .container { max-width: 900px; margin: 40px auto; padding: 0 24px; }
+  h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 6px; }
+  .subtitle { color: #6b7280; font-size: 0.95rem; margin-bottom: 32px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+  .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; cursor: pointer; transition: box-shadow 0.15s; }
+  .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  .card-icon { font-size: 1.8rem; margin-bottom: 10px; }
+  .card-title { font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
+  .card-desc { font-size: 0.85rem; color: #6b7280; }
+  .tag { display: inline-block; background: #eff6ff; color: #2563eb; font-size: 0.72rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; margin-top: 10px; }
+  .search-bar { display: flex; gap: 10px; margin-bottom: 28px; }
+  .search-bar input { flex: 1; padding: 10px 16px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.95rem; outline: none; }
+  .search-bar input:focus { border-color: #2563eb; }
+  .search-bar button { background: #2563eb; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; cursor: pointer; }
+  footer { text-align: center; padding: 40px 0 24px; color: #9ca3af; font-size: 0.8rem; }
+  /* Hidden arcade link — activated by clicking logo 5 times */
+  #secret-link { display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo" id="logo-click">📚 Study Hub</div>
+  <nav>
+    <a href="#">Notes</a>
+    <a href="#">Flashcards</a>
+    <a href="#">Subjects</a>
+    <a href="#">Calendar</a>
+  </nav>
+</header>
+
+<div class="container">
+  <h1>My Study Notes</h1>
+  <p class="subtitle">Organized notes, resources, and study materials</p>
+
+  <div class="search-bar">
+    <input type="text" placeholder="Search notes..." />
+    <button>Search</button>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-icon">📐</div>
+      <div class="card-title">Mathematics</div>
+      <div class="card-desc">Algebra, geometry, calculus notes and practice problems</div>
+      <span class="tag">Updated today</span>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔬</div>
+      <div class="card-title">Science</div>
+      <div class="card-desc">Biology, chemistry, physics study guides</div>
+      <span class="tag">12 notes</span>
+    </div>
+    <div class="card">
+      <div class="card-icon">📖</div>
+      <div class="card-title">English</div>
+      <div class="card-desc">Essay outlines, vocabulary, grammar reference</div>
+      <span class="tag">8 notes</span>
+    </div>
+    <div class="card">
+      <div class="card-icon">🌍</div>
+      <div class="card-title">History</div>
+      <div class="card-desc">World history timelines and key events</div>
+      <span class="tag">5 notes</span>
+    </div>
+    <div class="card">
+      <div class="card-icon">💻</div>
+      <div class="card-title">Computer Science</div>
+      <div class="card-desc">Programming concepts, algorithms, data structures</div>
+      <span class="tag">New</span>
+    </div>
+    <div class="card">
+      <div class="card-icon">🗺️</div>
+      <div class="card-title">Geography</div>
+      <div class="card-desc">Maps, capitals, physical features notes</div>
+      <span class="tag">3 notes</span>
+    </div>
+  </div>
+</div>
+
+<a id="secret-link" href="/index.html">Go to Arcade</a>
+
+<footer>Study Hub &copy; 2026 &mdash; All notes are private</footer>
+
+<script>
+  let clicks = 0;
+  document.getElementById("logo-click").addEventListener("click", () => {
+    clicks++;
+    if (clicks >= 5) window.location.href = "/index.html";
+  });
+
+  // Keyboard shortcut: Ctrl+Shift+G → go to arcade
+  document.addEventListener("keydown", e => {
+    if (e.ctrlKey && e.shiftKey && e.key === "G") window.location.href = "/index.html";
+  });
+</script>
+</body>
+</html>

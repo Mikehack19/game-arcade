@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Game Arcade</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0d0d1a">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8519551860632747" crossorigin="anonymous"></script>
 <!-- Privacy-friendly analytics by Plausible -->
 <script async src="https://plausible.io/js/pa-gZgLLvIgIbzfbPdjNMncK.js"></script>
 <script>
@@ -604,6 +607,30 @@
   .card.favorited .fav-btn { opacity: 1; }
   .fav-btn:hover { transform: scale(1.2); }
 
+  /* ── Rating buttons ── */
+  .rating-bar {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    margin-top: 2px;
+  }
+
+  .rate-btn {
+    background: none;
+    border: none;
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+    opacity: 0.5;
+    transition: opacity 0.15s, transform 0.1s;
+    line-height: 1;
+  }
+
+  .rate-btn:hover { opacity: 1; transform: scale(1.2); }
+  .rate-btn.active { opacity: 1; }
+  .rate-count { font-size: 0.68rem; color: var(--muted); min-width: 14px; text-align: center; }
+
   /* ── Share button ── */
   .modal-btn.share-btn { background: #003828; border-color: #006848; }
   .modal-btn.share-btn:hover { background: #004838; }
@@ -658,12 +685,21 @@
 <div class="page-layout">
 
   <aside class="ad-sidebar">
-    <div class="ad-slot ad-slot-rect"><span class="ad-icon">📢</span><span class="ad-label">Advertisement</span></div>
-    <div class="ad-slot ad-slot-sky"><span class="ad-icon">📢</span><span class="ad-label">Advertisement</span></div>
+    <div class="ad-slot ad-slot-rect">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-8519551860632747" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+    <div class="ad-slot ad-slot-sky">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-8519551860632747" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
   </aside>
 
   <div class="page-center">
-    <div class="ad-banner-mobile"><span>📢</span>&nbsp;Advertisement</div>
+    <div class="ad-banner-mobile">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-8519551860632747" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
 
     <div class="stats-bar">
       <p class="stats" id="stats"></p>
@@ -671,6 +707,7 @@
         <option value="default">Sort: Default</option>
         <option value="az">Sort: A–Z</option>
         <option value="za">Sort: Z–A</option>
+        <option value="top">Sort: Top Rated</option>
       </select>
     </div>
 
@@ -690,8 +727,14 @@
   </div>
 
   <aside class="ad-sidebar">
-    <div class="ad-slot ad-slot-rect"><span class="ad-icon">📢</span><span class="ad-label">Advertisement</span></div>
-    <div class="ad-slot ad-slot-sky"><span class="ad-icon">📢</span><span class="ad-label">Advertisement</span></div>
+    <div class="ad-slot ad-slot-rect">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-8519551860632747" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+    <div class="ad-slot ad-slot-sky">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-8519551860632747" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
   </aside>
 
 </div>
@@ -1059,8 +1102,17 @@ const CAT_LABELS = {
 // Persistence
 let favorites = new Set(JSON.parse(localStorage.getItem("arcade_favs") || "[]"));
 let recentlyPlayed = JSON.parse(localStorage.getItem("arcade_recent") || "[]");
+let ratings = JSON.parse(localStorage.getItem("arcade_ratings") || "{}");
 function saveFavorites() { localStorage.setItem("arcade_favs", JSON.stringify([...favorites])); }
 function saveRecent()    { localStorage.setItem("arcade_recent", JSON.stringify(recentlyPlayed)); }
+function saveRatings()   { localStorage.setItem("arcade_ratings", JSON.stringify(ratings)); }
+function getRatingScore(name) {
+  const r = ratings[name] || { up: 0, down: 0, mine: null };
+  return (r.up || 0) - (r.down || 0);
+}
+
+// PWA service worker
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
 
 const cats = ["all", "favorites", ...Object.keys(CAT_LABELS)];
 let activeFilter = "all";
@@ -1111,8 +1163,9 @@ function render() {
     return matchCat && matchSearch;
   });
 
-  if (sortOrder === "az") filteredGames = [...filteredGames].sort((a, b) => a.name.localeCompare(b.name));
-  else if (sortOrder === "za") filteredGames = [...filteredGames].sort((a, b) => b.name.localeCompare(a.name));
+  if (sortOrder === "az")   filteredGames = [...filteredGames].sort((a, b) => a.name.localeCompare(b.name));
+  else if (sortOrder === "za")  filteredGames = [...filteredGames].sort((a, b) => b.name.localeCompare(a.name));
+  else if (sortOrder === "top") filteredGames = [...filteredGames].sort((a, b) => getRatingScore(b.name) - getRatingScore(a.name));
 
   statsEl.textContent = `${filteredGames.length} game${filteredGames.length !== 1 ? "s" : ""} found`;
 
@@ -1137,6 +1190,11 @@ function render() {
       <div class="card-info">
         <div class="card-name">${g.name}</div>
         <span class="cat-badge cat-${g.cat}">${CAT_LABELS[g.cat] || g.cat}</span>
+        <div class="rating-bar">
+          <button class="rate-btn${(ratings[g.name]?.mine === 'up') ? ' active' : ''}" data-rate="up" data-name="${safeName}">👍</button>
+          <span class="rate-count">${(ratings[g.name]?.up || 0)}</span>
+          <button class="rate-btn${(ratings[g.name]?.mine === 'down') ? ' active' : ''}" data-rate="down" data-name="${safeName}">👎</button>
+        </div>
       </div>
     </div>`;
   }).join("");
@@ -1149,6 +1207,26 @@ gridEl.addEventListener("click", e => {
     const name = favBtn.dataset.name;
     if (favorites.has(name)) favorites.delete(name); else favorites.add(name);
     saveFavorites();
+    render();
+    return;
+  }
+  const rateBtn = e.target.closest(".rate-btn");
+  if (rateBtn) {
+    e.stopPropagation();
+    const name = rateBtn.dataset.name;
+    const dir = rateBtn.dataset.rate;
+    if (!ratings[name]) ratings[name] = { up: 0, down: 0, mine: null };
+    const r = ratings[name];
+    const prev = r.mine;
+    if (prev === dir) {
+      r[dir]--;
+      r.mine = null;
+    } else {
+      if (prev) r[prev]--;
+      r[dir]++;
+      r.mine = dir;
+    }
+    saveRatings();
     render();
     return;
   }
