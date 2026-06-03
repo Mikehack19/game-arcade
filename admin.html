@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0d0d1a; --surface: #13132a; --card: #1a1a35;
+    --accent: #7c4dff; --accent2: #00e5ff; --text: #e0e0ff;
+    --muted: #8888aa; --border: #2a2a55;
+    --green: #4cff91; --red: #ff4d6d; --yellow: #ffd700;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+  /* Auth gate */
+  #auth-gate {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;
+  }
+  .login-box {
+    background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+    padding: 36px; width: 100%; max-width: 360px; text-align: center;
+  }
+  .login-box h1 { font-size: 1.4rem; font-weight: 800; margin-bottom: 6px; }
+  .login-box p { color: var(--muted); font-size: 0.85rem; margin-bottom: 24px; }
+  .field { margin-bottom: 14px; text-align: left; }
+  .field label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
+  .field input { width: 100%; padding: 10px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.9rem; outline: none; }
+  .field input:focus { border-color: var(--accent); }
+  .submit-btn { width: 100%; padding: 11px; background: linear-gradient(90deg, var(--accent), var(--accent2)); color: #fff; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 700; cursor: pointer; margin-top: 4px; }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .login-error { color: var(--red); font-size: 0.82rem; margin-top: 10px; }
+
+  /* Dashboard */
+  #dashboard { display: none; }
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .logo { font-size: 1.1rem; font-weight: 900; background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .admin-badge { background: rgba(124,77,255,0.2); color: #b09eff; font-size: 0.7rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .user-info { font-size: 0.82rem; color: var(--muted); }
+  .signout-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 5px 12px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; }
+  .signout-btn:hover { border-color: var(--red); color: var(--red); }
+  .back-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 5px 12px; border-radius: 8px; font-size: 0.8rem; text-decoration: none; }
+  .back-btn:hover { color: var(--text); }
+
+  main { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
+
+  /* Stat cards */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px 22px; }
+  .stat-label { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; }
+  .stat-value { font-size: 2rem; font-weight: 900; }
+  .stat-value.purple { background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .stat-value.green { color: var(--green); }
+  .stat-value.yellow { color: var(--yellow); }
+  .stat-value.blue { color: var(--accent2); }
+  .stat-sub { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+
+  /* Sections */
+  .section { margin-bottom: 32px; }
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .section-title { font-size: 1rem; font-weight: 800; }
+  .refresh-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; }
+  .refresh-btn:hover { color: var(--text); }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 800px) { .grid-2 { grid-template-columns: 1fr; } main { padding: 16px; } }
+
+  .panel { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+  .panel-title { font-size: 0.85rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 14px; }
+
+  /* Top games table */
+  .game-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .game-row:last-child { border-bottom: none; }
+  .game-rank { font-size: 0.8rem; font-weight: 800; color: var(--muted); width: 20px; text-align: center; flex-shrink: 0; }
+  .game-rank.gold { color: #ffd700; }
+  .game-rank.silver { color: #c0c0c0; }
+  .game-rank.bronze { color: #cd7f32; }
+  .game-name-cell { flex: 1; font-size: 0.85rem; font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .game-bar-wrap { width: 80px; height: 6px; background: var(--border); border-radius: 999px; overflow: hidden; flex-shrink: 0; }
+  .game-bar { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 999px; }
+  .game-count { font-size: 0.78rem; color: var(--muted); flex-shrink: 0; width: 32px; text-align: right; }
+
+  /* Recent activity */
+  .activity-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+  .activity-row:last-child { border-bottom: none; }
+  .activity-icon { font-size: 1rem; flex-shrink: 0; }
+  .activity-text { flex: 1; font-size: 0.82rem; min-width: 0; }
+  .activity-text span { color: var(--muted); font-size: 0.75rem; display: block; }
+  .activity-time { font-size: 0.72rem; color: var(--muted); flex-shrink: 0; }
+
+  /* Links table */
+  .link-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.82rem; }
+  .link-row:last-child { border-bottom: none; }
+  .link-slug { color: var(--accent2); font-weight: 700; flex-shrink: 0; }
+  .link-dest { color: var(--muted); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .del-btn { background: none; border: none; color: var(--red); cursor: pointer; font-size: 0.75rem; flex-shrink: 0; padding: 2px 6px; border-radius: 4px; }
+  .del-btn:hover { background: rgba(255,77,109,0.1); }
+
+  /* Rating leaderboard */
+  .rating-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+  .rating-row:last-child { border-bottom: none; }
+  .rating-name { flex: 1; font-size: 0.83rem; font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rating-score { font-size: 0.82rem; color: var(--green); font-weight: 700; flex-shrink: 0; }
+
+  .empty-state { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 24px 0; }
+  .loading { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 24px 0; }
+</style>
+</head>
+<body>
+
+<!-- Auth Gate -->
+<div id="auth-gate">
+  <div class="login-box">
+    <div style="font-size:2rem;margin-bottom:12px">⚙️</div>
+    <h1>Admin Dashboard</h1>
+    <p>Sign in with your admin account to continue</p>
+    <div class="field"><label>Email</label><input type="email" id="email" placeholder="admin@example.com" /></div>
+    <div class="field"><label>Password</label><input type="password" id="password" placeholder="••••••••" /></div>
+    <button class="submit-btn" id="login-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard">
+  <header>
+    <div class="header-left">
+      <a href="/" style="font-size:1.4rem;text-decoration:none">🎮</a>
+      <span class="logo">Admin Dashboard</span>
+      <span class="admin-badge">Admin</span>
+    </div>
+    <div class="header-right">
+      <span class="user-info" id="admin-email"></span>
+      <a class="back-btn" href="/arcade.html">← Arcade</a>
+      <button class="signout-btn" onclick="doSignout()">Sign Out</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Stats -->
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card"><div class="stat-label">Total Plays</div><div class="stat-value purple" id="stat-plays">—</div><div class="stat-sub">all time</div></div>
+      <div class="stat-card"><div class="stat-label">Unique Games Played</div><div class="stat-value blue" id="stat-games">—</div><div class="stat-sub">distinct games</div></div>
+      <div class="stat-card"><div class="stat-label">Total Ratings</div><div class="stat-value yellow" id="stat-ratings">—</div><div class="stat-sub">👍 + 👎 combined</div></div>
+      <div class="stat-card"><div class="stat-label">Short Links</div><div class="stat-value green" id="stat-links">—</div><div class="stat-sub">created</div></div>
+    </div>
+
+    <div class="grid-2">
+      <!-- Top games -->
+      <div class="panel">
+        <div class="panel-title">🏆 Most Played Games</div>
+        <div id="top-games"><div class="loading">Loading…</div></div>
+      </div>
+
+      <!-- Top rated -->
+      <div class="panel">
+        <div class="panel-title">⭐ Top Rated Games</div>
+        <div id="top-rated"><div class="loading">Loading…</div></div>
+      </div>
+    </div>
+
+    <div style="height:20px"></div>
+
+    <div class="grid-2">
+      <!-- Recent activity -->
+      <div class="panel">
+        <div class="panel-title">🕐 Recent Plays</div>
+        <div id="recent-plays"><div class="loading">Loading…</div></div>
+      </div>
+
+      <!-- Short links -->
+      <div class="panel">
+        <div class="panel-title">🔗 Short Links</div>
+        <div id="links-list"><div class="loading">Loading…</div></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const SB_URL = "https://jemkakaywibgiryukgxo.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImplbWtha2F5d2liZ2lyeXVrZ3hvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0NjU5MjksImV4cCI6MjA5NjA0MTkyOX0.ZldsleKmiY_z3vN4qtHELPLKVSmK_ZSbs78_7aXk04s";
+const sb = window.supabase.createClient(SB_URL, SB_KEY);
+
+async function api(path) {
+  const session = (await sb.auth.getSession()).data.session;
+  const token = session?.access_token || SB_KEY;
+  const res = await fetch(`${SB_URL}/rest/v1/${path}`, {
+    headers: { "apikey": SB_KEY, "Authorization": `Bearer ${token}` }
+  });
+  return res.json();
+}
+
+async function del(path) {
+  const session = (await sb.auth.getSession()).data.session;
+  const token = session?.access_token || SB_KEY;
+  await fetch(`${SB_URL}/rest/v1/${path}`, {
+    method: "DELETE",
+    headers: { "apikey": SB_KEY, "Authorization": `Bearer ${token}` }
+  });
+}
+
+function timeAgo(ts) {
+  const s = Math.floor((Date.now() - new Date(ts)) / 1000);
+  if (s < 60) return s + "s ago";
+  if (s < 3600) return Math.floor(s/60) + "m ago";
+  if (s < 86400) return Math.floor(s/3600) + "h ago";
+  return Math.floor(s/86400) + "d ago";
+}
+
+async function doLogin() {
+  const email = document.getElementById("email").value.trim();
+  const pass = document.getElementById("password").value;
+  const err = document.getElementById("login-error");
+  const btn = document.getElementById("login-btn");
+  err.textContent = ""; btn.disabled = true; btn.textContent = "Signing in…";
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+  if (error) { err.textContent = error.message; btn.disabled = false; btn.textContent = "Sign In"; return; }
+  // Check admin role
+  const roles = await api(`user_roles?user_id=eq.${data.user.id}&role=eq.admin&select=role`);
+  if (!roles?.length) {
+    err.textContent = "You don't have admin access.";
+    await sb.auth.signOut();
+    btn.disabled = false; btn.textContent = "Sign In"; return;
+  }
+  showDashboard(data.user);
+}
+
+async function doSignout() { await sb.auth.signOut(); location.reload(); }
+
+function showDashboard(user) {
+  document.getElementById("auth-gate").style.display = "none";
+  document.getElementById("dashboard").style.display = "block";
+  document.getElementById("admin-email").textContent = user.email;
+  loadAll();
+}
+
+async function loadAll() {
+  loadStats();
+  loadTopGames();
+  loadTopRated();
+  loadRecentPlays();
+  loadLinks();
+}
+
+async function loadStats() {
+  const [plays, ratings, links] = await Promise.all([
+    api("game_plays?select=id"),
+    api("arcade_ratings?select=id"),
+    api("short_links?select=id")
+  ]);
+  const uniqueGames = await api("game_plays?select=game_name");
+  const unique = new Set((uniqueGames || []).map(r => r.game_name)).size;
+  document.getElementById("stat-plays").textContent = (plays || []).length.toLocaleString();
+  document.getElementById("stat-games").textContent = unique.toLocaleString();
+  document.getElementById("stat-ratings").textContent = (ratings || []).length.toLocaleString();
+  document.getElementById("stat-links").textContent = (links || []).length.toLocaleString();
+}
+
+async function loadTopGames() {
+  const data = await api("game_plays?select=game_name&order=played_at.desc&limit=500");
+  const counts = {};
+  for (const r of (data || [])) counts[r.game_name] = (counts[r.game_name] || 0) + 1;
+  const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]).slice(0, 10);
+  const max = sorted[0]?.[1] || 1;
+  const rankClass = i => i === 0 ? "gold" : i === 1 ? "silver" : i === 2 ? "bronze" : "";
+  document.getElementById("top-games").innerHTML = sorted.length ? sorted.map(([name, count], i) => `
+    <div class="game-row">
+      <span class="game-rank ${rankClass(i)}">${i+1}</span>
+      <span class="game-name-cell">${name}</span>
+      <div class="game-bar-wrap"><div class="game-bar" style="width:${Math.round(count/max*100)}%"></div></div>
+      <span class="game-count">${count}</span>
+    </div>`).join("") : '<div class="empty-state">No plays yet</div>';
+}
+
+async function loadTopRated() {
+  const data = await api("arcade_ratings?select=game_name,rating&limit=500");
+  const scores = {};
+  for (const r of (data || [])) {
+    if (!scores[r.game_name]) scores[r.game_name] = { up: 0, down: 0 };
+    scores[r.game_name][r.rating]++;
+  }
+  const sorted = Object.entries(scores)
+    .map(([name, s]) => ({ name, score: s.up - s.down, up: s.up, down: s.down }))
+    .sort((a,b) => b.score - a.score).slice(0, 10);
+  document.getElementById("top-rated").innerHTML = sorted.length ? sorted.map((g, i) => `
+    <div class="rating-row">
+      <span class="game-rank">${i+1}</span>
+      <span class="rating-name">${g.name}</span>
+      <span style="font-size:0.75rem;color:var(--muted)">👍${g.up} 👎${g.down}</span>
+      <span class="rating-score">${g.score > 0 ? "+" : ""}${g.score}</span>
+    </div>`).join("") : '<div class="empty-state">No ratings yet</div>';
+}
+
+async function loadRecentPlays() {
+  const data = await api("game_plays?select=game_name,played_at,user_id&order=played_at.desc&limit=15");
+  document.getElementById("recent-plays").innerHTML = (data || []).length ? (data || []).map(r => `
+    <div class="activity-row">
+      <span class="activity-icon">🎮</span>
+      <div class="activity-text">
+        ${r.game_name}
+        <span>${r.user_id ? "logged in user" : "anonymous"}</span>
+      </div>
+      <span class="activity-time">${timeAgo(r.played_at)}</span>
+    </div>`).join("") : '<div class="empty-state">No plays yet</div>';
+}
+
+async function loadLinks() {
+  const data = await api("short_links?select=slug,destination,created_at&order=created_at.desc&limit=20");
+  document.getElementById("links-list").innerHTML = (data || []).length ? (data || []).map(l => `
+    <div class="link-row">
+      <span class="link-slug">/go?r=${l.slug}</span>
+      <span class="link-dest" title="${l.destination}">${l.destination}</span>
+      <button class="del-btn" onclick="deleteLink('${l.slug}')">✕</button>
+    </div>`).join("") : '<div class="empty-state">No links yet</div>';
+}
+
+async function deleteLink(slug) {
+  await del(`short_links?slug=eq.${encodeURIComponent(slug)}`);
+  loadLinks();
+  loadStats();
+}
+
+// Auto-check session on load
+sb.auth.getSession().then(async ({ data }) => {
+  if (data.session) {
+    const roles = await api(`user_roles?user_id=eq.${data.session.user.id}&role=eq.admin&select=role`);
+    if (roles?.length) showDashboard(data.session.user);
+  }
+});
+
+// Enter key to login
+document.getElementById("password").addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
+</script>
+</body>
+</html>
